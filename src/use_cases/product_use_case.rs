@@ -23,6 +23,12 @@ pub trait ProductUseCase: Send + Sync {
         name: &String,
     ) -> Result<Product, AppError>;
     async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<Product>, AppError>;
+    async fn find_by_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        id: i32,
+    ) -> Result<Option<Product>, AppError>;
 }
 
 #[async_trait]
@@ -43,4 +49,16 @@ impl ProductUseCase for ProductUseCaseImpl {
         let products = repos.product.find_all(&mut *db_con).await?;
         Ok(products)
     }
+
+    #[instrument(name = "product_use_case/find_by_id", skip_all)]
+    async fn find_by_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        id: i32,
+    ) -> Result<Option<Product>, AppError> {
+        let product = repos.product.find_by_id(&mut *db_con, id).await?;
+        Ok(product)
+    }
+
 }

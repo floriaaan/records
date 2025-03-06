@@ -29,8 +29,23 @@ async fn add(
     Ok(Json(product))
 }
 
+#[get("/<id>")]
+#[instrument(name = "product_controller/get", skip_all)]
+async fn get(
+    app: &AppState,
+    mut db: ConnectionDb,
+    id: i32,
+) -> Result<Json<Option<Product>>, AppError> {
+    let product = app
+        .use_cases
+        .product
+        .find_by_id(&app.repos, &mut db, id)
+        .await?;
+    Ok(Json(product))
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, add]
+    routes![index, add, get]
 }
 
 #[cfg(test)]

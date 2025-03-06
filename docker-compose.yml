@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: records
+    volumes:
+      - records-db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  test_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: test_records
+    volumes:
+      - test-records-db-data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+
+volumes:
+  records-db-data:
+  test-records-db-data:

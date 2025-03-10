@@ -1,10 +1,9 @@
 use crate::db::DbCon;
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::Jwt;
-use crate::models::user_model::User;
 use crate::repositories::error::DbRepoError;
 use crate::repositories::repositories::Repos;
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify};
 use mockall::automock;
 use tracing::instrument;
 

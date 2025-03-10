@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::DateTime;
 
 use crate::models::user_model::User;
 
@@ -7,7 +7,9 @@ pub fn user_fixture(id: usize) -> User {
         id: id as i32,
         email: String::from("taro"),
         password: String::from("password"),
-        created_at: NaiveDateTime::from_timestamp(0, 0),
+        created_at: DateTime::parse_from_rfc3339("2021-01-01T00:00:00Z")
+            .unwrap()
+            .naive_utc(),
     }
 }
 

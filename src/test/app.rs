@@ -4,6 +4,7 @@ use crate::repositories::{
 };
 use crate::use_cases::{
     record_use_case::MockRecordUseCase, use_cases::UseCases, user_use_case::MockUserUseCase,
+    auth_use_case::MockAuthUseCase,
 };
 
 pub fn create_app_for_test() -> App {
@@ -21,5 +22,6 @@ pub fn create_repos_for_test() -> Repos {
 pub fn create_use_cases_for_test() -> UseCases {
     let user = Box::new(MockUserUseCase::new());
     let record = Box::new(MockRecordUseCase::new());
-    UseCases { user, record }
+    let auth = Box::new(MockAuthUseCase::new());
+    UseCases { user, record, auth }
 }

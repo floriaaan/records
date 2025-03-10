@@ -1,15 +1,15 @@
 use crate::repositories::{
-    product_repo::{ProductRepo, ProductRepoImpl},
+    record_repo::{RecordRepo, RecordRepoImpl},
     user_repo::{UserRepo, UserRepoImpl},
 };
 
 pub struct Repos {
     pub user: Box<dyn UserRepo>,
-    pub product: Box<dyn ProductRepo>,
+    pub record: Box<dyn RecordRepo>,
 }
 
 pub fn create_repos() -> Repos {
     let user = Box::new(UserRepoImpl::new());
-    let product = Box::new(ProductRepoImpl::new());
-    Repos { user, product }
+    let record = Box::new(RecordRepoImpl::new());
+    Repos { user, record }
 }

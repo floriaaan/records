@@ -16,13 +16,14 @@ impl UserUseCaseImpl {
 #[automock]
 #[async_trait]
 pub trait UserUseCase: Send + Sync {
-    async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<User>, AppError>;
-    async fn create(
+    async fn create (
         &self,
         repos: &Repos,
         db_con: &mut DbCon,
-        name: &String,
+        email: &String,
+        password: &String,
     ) -> Result<User, AppError>;
+    async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<User>, AppError>;
     async fn update(
         &self,
         repos: &Repos,
@@ -35,6 +36,21 @@ pub trait UserUseCase: Send + Sync {
 
 #[async_trait]
 impl UserUseCase for UserUseCaseImpl {
+    #[instrument(name = "user_use_case/create", skip_all)]
+    async fn create(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        email: &String,
+        password: &String,
+    ) -> Result<User, AppError> {
+        repos
+            .user
+            .create(&mut *db_con, email, password)
+            .await
+            .map_err(|e| AppError::from(e))
+    }
+
     #[instrument(name = "user_use_case/find_all", skip_all)]
     async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<User>, AppError> {
         repos
@@ -44,19 +60,7 @@ impl UserUseCase for UserUseCaseImpl {
             .map_err(|e| AppError::from(e))
     }
 
-    #[instrument(name = "user_use_case/create", skip_all)]
-    async fn create(
-        &self,
-        repos: &Repos,
-        db_con: &mut DbCon,
-        name: &String,
-    ) -> Result<User, AppError> {
-        repos
-            .user
-            .create(&mut *db_con, name)
-            .await
-            .map_err(|e| AppError::from(e))
-    }
+    
 
     #[instrument(name = "user_use_case/update", skip_all, fields(id = %id))]
     async fn update(

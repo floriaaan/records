@@ -1,47 +1,63 @@
 use crate::app::AppState;
 use crate::db::ConnectionDb;
-use crate::dto::product_dto::ProductName;
+use crate::dto::record_dto::RecordInput;
 use crate::error::app_error::AppError;
-use crate::models::product_model::Product;
+use crate::models::record_model::Record;
 use rocket::serde::json::Json;
 use tracing::instrument;
 
 #[get("/")]
-#[instrument(name = "product_controller/index", skip_all)]
-async fn index(app: &AppState, mut db: ConnectionDb) -> Result<Json<Vec<Product>>, AppError> {
-    let products = app.use_cases.product.find_all(&app.repos, &mut db).await?;
-    Ok(Json(products))
+#[instrument(name = "record_controller/index", skip_all)]
+async fn index(app: &AppState, mut db: ConnectionDb) -> Result<Json<Vec<Record>>, AppError> {
+    let records = app.use_cases.record.find_all(&app.repos, &mut db).await?;
+    Ok(Json(records))
 }
 
-#[post("/add", data = "<name>")]
-#[instrument(name = "product_controller/add", skip_all)]
+#[post("/", data = "<body>")]
+#[instrument(name = "record_controller/add", skip_all)]
 async fn add(
     app: &AppState,
     mut db: ConnectionDb,
-    name: Json<ProductName>,
-) -> Result<Json<Product>, AppError> {
-    let name = name.into_inner().name;
-    let product = app
+    body: Json<RecordInput>,
+) -> Result<Json<Record>, AppError> {
+    let body = body.into_inner();
+    let title = body.title;
+    let artist = body.artist;
+    let release_date = body.release_date;
+    let cover_url = body.cover_url;
+    let discogs_url = body.discogs_url;
+    let spotify_url = body.spotify_url;
+
+    let record = app
         .use_cases
-        .product
-        .create(&app.repos, &mut db, &name)
+        .record
+        .create(
+            &app.repos,
+            &mut db,
+            &title,
+            &artist,
+            &release_date,
+            &cover_url,
+            discogs_url,
+            spotify_url,
+        )
         .await?;
-    Ok(Json(product))
+    Ok(Json(record))
 }
 
 #[get("/<id>")]
-#[instrument(name = "product_controller/get", skip_all)]
+#[instrument(name = "record_controller/get", skip_all)]
 async fn get(
     app: &AppState,
     mut db: ConnectionDb,
     id: i32,
-) -> Result<Json<Option<Product>>, AppError> {
-    let product = app
+) -> Result<Json<Option<Record>>, AppError> {
+    let record = app
         .use_cases
-        .product
+        .record
         .find_by_id(&app.repos, &mut db, id)
         .await?;
-    Ok(Json(product))
+    Ok(Json(record))
 }
 
 pub fn routes() -> Vec<rocket::Route> {
@@ -54,8 +70,8 @@ mod tests {
     use crate::config::Config;
     use crate::db::Db;
     use crate::test::app::create_app_for_test;
-    use crate::test::fixture::product::products_fixture;
-    use crate::use_cases::product_use_case::MockProductUseCase;
+    use crate::test::fixture::record::records_fixture;
+    use crate::use_cases::record_use_case::MockRecordUseCase;
     use rocket::fairing::AdHoc;
     use rocket::http::Status;
     use rocket::local::asynchronous::Client;
@@ -64,13 +80,13 @@ mod tests {
 
     #[rocket::async_test]
     async fn test_index_success() {
-        let mut mock_product_use_case = MockProductUseCase::new();
-        mock_product_use_case
+        let mut mock_record_use_case = MockRecordUseCase::new();
+        mock_record_use_case
             .expect_find_all()
-            .returning(|_, _| Ok(products_fixture(5)));
+            .returning(|_, _| Ok(records_fixture(5)));
 
         let mut app_state = create_app_for_test();
-        app_state.use_cases.product = Box::new(mock_product_use_case);
+        app_state.use_cases.record = Box::new(mock_record_use_case);
 
         let rocket = rocket::build()
             .manage(Arc::new(app_state))
@@ -87,13 +103,13 @@ mod tests {
 
     #[rocket::async_test]
     async fn test_index_fail() {
-        let mut mock_product_use_case = MockProductUseCase::new();
-        mock_product_use_case
+        let mut mock_record_use_case = MockRecordUseCase::new();
+        mock_record_use_case
             .expect_find_all()
             .returning(|_, _| app_err!(500, "error"));
 
         let mut app_state = create_app_for_test();
-        app_state.use_cases.product = Box::new(mock_product_use_case);
+        app_state.use_cases.record = Box::new(mock_record_use_case);
 
         let rocket = rocket::build()
             .manage(Arc::new(app_state))

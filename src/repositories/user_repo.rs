@@ -16,12 +16,22 @@ impl UserRepoImpl {
 #[automock]
 #[async_trait]
 pub trait UserRepo: Send + Sync {
-    async fn create(&self, con: &mut PgConnection, name: &String) -> Result<User, DbRepoError>;
+    async fn create(
+        &self,
+        con: &mut PgConnection,
+        email: &String,
+        password: &String,
+    ) -> Result<User, DbRepoError>;
     async fn find_all(&self, con: &mut PgConnection) -> Result<Vec<User>, DbRepoError>;
     async fn find_by_id(
         &self,
         con: &mut PgConnection,
         id: i32,
+    ) -> Result<Option<User>, DbRepoError>;
+    async fn find_by_email(
+        &self,
+        con: &mut PgConnection,
+        email: &String,
     ) -> Result<Option<User>, DbRepoError>;
     async fn update(
         &self,
@@ -35,16 +45,23 @@ pub trait UserRepo: Send + Sync {
 #[async_trait]
 impl UserRepo for UserRepoImpl {
     #[instrument(name = "user_repo/create", skip_all)]
-    async fn create(&self, con: &mut PgConnection, name: &String) -> Result<User, DbRepoError> {
+    async fn create(
+        &self,
+        con: &mut PgConnection,
+        email: &String,
+        password: &String,
+    ) -> Result<User, DbRepoError> {
         query_as!(
             User,
-            "INSERT INTO users (name) VALUES ($1) RETURNING *",
-            name,
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
+            email,
+            password
         )
         .fetch_one(&mut *con)
         .await
         .map_err(|e| log_into!(e, DbRepoError))
     }
+
 
     #[instrument(name = "user_repo/find_all", skip_all)]
     async fn find_all(&self, con: &mut PgConnection) -> Result<Vec<User>, DbRepoError> {
@@ -67,17 +84,29 @@ impl UserRepo for UserRepoImpl {
             .map_err(|e| log_into!(e, DbRepoError))
     }
 
+    #[instrument(name = "user_repo/find_by_email", skip_all, fields(email = %email))]
+    async fn find_by_email(
+        &self,
+        con: &mut PgConnection,
+        email: &String,
+    ) -> Result<Option<User>, DbRepoError> {
+        query_as!(User, "SELECT * FROM users WHERE email = $1", email)
+            .fetch_optional(&mut *con)
+            .await
+            .map_err(|e| log_into!(e, DbRepoError))
+    }
+
     #[instrument(name = "user_repo/update", skip_all, fields(id = %id))]
     async fn update(
         &self,
         con: &mut PgConnection,
         id: i32,
-        name: &String,
+        email: &String,
     ) -> Result<User, DbRepoError> {
         query_as!(
             User,
-            "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
-            name,
+            "UPDATE users SET email = $1 WHERE id = $2 RETURNING *",
+            email,
             id
         )
         .fetch_one(&mut *con)
@@ -128,8 +157,8 @@ mod tests {
         let mut tx = db_con.begin().await.unwrap();
         let user = create_user(&mut tx).await.unwrap();
         let repo = UserRepoImpl::new();
-        let new_name = "new_name".to_string();
-        let result = repo.update(&mut tx, user.id, &new_name).await;
+        let new_email = "new_email@mail.com".to_string();
+        let result = repo.update(&mut tx, user.id, &new_email).await;
         assert!(result.is_ok());
         tx.rollback().await.unwrap();
     }

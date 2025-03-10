@@ -1,0 +1,11 @@
+###
+# @prompt email Your email
+# @prompt password Your password
+
+POST http://localhost:8000/auth/login
+content-type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}

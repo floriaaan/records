@@ -1,15 +1,18 @@
 use crate::use_cases::{
-    product_use_case::{ProductUseCase, ProductUseCaseImpl},
+    record_use_case::{RecordUseCase, RecordUseCaseImpl},
     user_use_case::{UserUseCase, UserUseCaseImpl},
+    auth_use_case::{AuthUseCase, AuthUseCaseImpl},
 };
 
 pub struct UseCases {
     pub user: Box<dyn UserUseCase>,
-    pub product: Box<dyn ProductUseCase>,
+    pub record: Box<dyn RecordUseCase>,
+    pub auth: Box<dyn AuthUseCase>,
 }
 
 pub fn create_use_cases() -> UseCases {
     let user = Box::new(UserUseCaseImpl::new());
-    let product = Box::new(ProductUseCaseImpl::new());
-    UseCases { user, product }
+    let record = Box::new(RecordUseCaseImpl::new());
+    let auth = Box::new(AuthUseCaseImpl::new());
+    UseCases { user, record, auth }
 }

@@ -11,28 +11,31 @@ mod error {
 }
 
 mod controllers {
-    pub mod product_controller;
+    pub mod record_controller;
+    pub mod auth_controller;
     pub mod user_controller;
 }
 mod use_cases {
-    pub mod product_use_case;
-    pub mod use_cases;
+    pub mod record_use_case;
     pub mod user_use_case;
+    pub mod auth_use_case;
+    pub mod use_cases;
 }
 mod repositories {
     pub mod error;
-    pub mod product_repo;
+    pub mod record_repo;
     pub mod repositories;
     pub mod user_repo;
 }
 
 mod models {
-    pub mod product_model;
+    pub mod record_model;
     pub mod user_model;
+    pub mod jwt_model;
 }
 
 mod dto {
-    pub mod product_dto;
+    pub mod record_dto;
     pub mod user_dto;
 }
 
@@ -41,21 +44,22 @@ mod test {
     pub mod app;
     pub mod db;
     pub mod fixture {
-        pub mod product;
+        pub mod record;
         pub mod user;
     }
 
     pub mod repositories {
         pub mod prepare {
-            pub mod product;
+            pub mod record;
             pub mod user;
+
         }
     }
 }
 
 use crate::app::create_app;
 use crate::config::Config;
-use crate::controllers::{product_controller, user_controller};
+use crate::controllers::{record_controller, user_controller, auth_controller};
 use crate::db::Db;
 use dotenv::dotenv;
 use rocket::fairing::AdHoc;
@@ -71,5 +75,6 @@ async fn rocket() -> _ {
         .attach(AdHoc::config::<Config>())
         .manage(create_app())
         .mount("/users", user_controller::routes())
-        .mount("/products", product_controller::routes())
+        .mount("/records", record_controller::routes())
+        .mount("/auth", auth_controller::routes())
 }

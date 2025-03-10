@@ -1,6 +1,6 @@
 use crate::app::AppState;
 use crate::db::ConnectionDb;
-use crate::dto::user_dto::UserName;
+use crate::dto::user_dto::{UserEmail, UserInput};
 use crate::error::app_error::AppError;
 use crate::models::user_model::User;
 use rocket::serde::json::Json;
@@ -13,35 +13,37 @@ async fn index(app: &AppState, mut db: ConnectionDb) -> Result<Json<Vec<User>>, 
     Ok(Json(users))
 }
 
-#[post("/add", data = "<name>")]
+#[post("/", data = "<body>")]
 #[instrument(name = "user_controller/add", skip_all)]
-async fn add(
+async fn create(
     app: &AppState,
     mut db: ConnectionDb,
-    name: Json<UserName>,
+    body: Json<UserInput>,
 ) -> Result<Json<User>, AppError> {
-    let name = name.into_inner().name;
+    let body = body.into_inner();
+    let email = body.email;
+    let password = body.password;
     let user = app
         .use_cases
         .user
-        .create(&app.repos, &mut db, &name)
+        .create(&app.repos, &mut db, &email, &password)
         .await?;
     Ok(Json(user))
 }
 
-#[put("/<id>", data = "<name>")]
+#[put("/<id>", data = "<email>")]
 #[instrument(name = "user_controller/update", skip_all, fields(id = %id))]
 async fn update(
     app: &AppState,
     mut db: ConnectionDb,
     id: i32,
-    name: Json<UserName>,
+    email: Json<UserEmail>,
 ) -> Result<Json<User>, AppError> {
-    let name = name.into_inner().name;
+    let email = email.into_inner().email;
     let user = app
         .use_cases
         .user
-        .update(&app.repos, &mut db, id, &name)
+        .update(&app.repos, &mut db, id, &email)
         .await?;
     Ok(Json(user))
 }
@@ -54,7 +56,7 @@ async fn delete(app: &AppState, mut db: ConnectionDb, id: i32) -> Result<(), App
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, add, update, delete]
+    routes![index, create, update, delete]
 }
 
 #[cfg(test)]

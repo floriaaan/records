@@ -1,0 +1,19 @@
+@baseUrl = http://localhost:8000
+# Login
+# @name tokenAPI
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "user@mail.com",
+    "password": "password"
+}
+###
+
+@authToken = {{tokenAPI.response.body.token}}
+
+
+
+GET http://localhost:8000/auth/me
+content-type: application/json
+Authorization: Bearer {{authToken}}

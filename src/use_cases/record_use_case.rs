@@ -20,6 +20,7 @@ pub trait RecordUseCase: Send + Sync {
         &self,
         repos: &Repos,
         db_con: &mut DbCon,
+        user_id: i32,
         title: &String,
         artist: &String,
         release_date: &String,
@@ -43,6 +44,7 @@ impl RecordUseCase for RecordUseCaseImpl {
         &self,
         repos: &Repos,
         db_con: &mut DbCon,
+        user_id: i32,
         title: &String,
         artist: &String,
         release_date: &String,
@@ -54,6 +56,7 @@ impl RecordUseCase for RecordUseCaseImpl {
             .record
             .create(
                 &mut *db_con,
+                user_id,
                 title,
                 artist,
                 release_date,

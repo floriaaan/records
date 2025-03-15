@@ -1,8 +1,8 @@
-use crate::db::DbCon;
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::Jwt;
 use crate::repositories::error::DbRepoError;
 use crate::repositories::repositories::Repos;
+use crate::{db::DbCon, models::jwt_model::generate_jwt};
 use bcrypt::{hash, verify};
 use mockall::automock;
 use tracing::instrument;
@@ -50,14 +50,14 @@ impl AuthUseCase for AuthUseCaseImpl {
             .create(&mut *db_con, email, &hashed_password)
             .await?;
 
-        let jwt = Jwt {
-            token: "token".to_string(),
-            user_id: user.id,
-            issued_at: chrono::Utc::now(),
-            expires_at: chrono::Utc::now() + chrono::Duration::hours(1),
+        let jwt_claim = generate_jwt(user.id).await;
+
+        let token = match jwt_claim {
+            Ok(claim) => claim,
+            Err(e) => return Err(AppError::new(500, &e.to_string())),
         };
 
-        Ok(jwt)
+        Ok(Jwt { token })
     }
 
     #[instrument(name = "auth_use_case/log_in", skip_all)]
@@ -75,22 +75,19 @@ impl AuthUseCase for AuthUseCaseImpl {
 
         let unwrapped_user = &user.unwrap();
 
-
         let is_valid = verify(password, &unwrapped_user.password).unwrap();
         if !is_valid {
             return Err(AppError::from(DbRepoError::NotFound));
         }
 
-        // TODO: Implement JWT generation
+        let jwt_claim = generate_jwt(unwrapped_user.id).await;
 
-        let jwt = Jwt {
-            token: "token".to_string(),
-            user_id: unwrapped_user.id,
-            issued_at: chrono::Utc::now(),
-            expires_at: chrono::Utc::now() + chrono::Duration::hours(1),
+        let token = match jwt_claim {
+            Ok(claim) => claim,
+            Err(e) => return Err(AppError::new(500, &e.to_string())),
         };
 
-        Ok(jwt)
+        Ok(Jwt { token })
     }
 }
 
@@ -113,6 +110,7 @@ mod tests {
             .register(&repos, &mut db_con, &email, &password)
             .await
             .unwrap();
-        assert_eq!(jwt.token, "token");
+
+        assert_eq!(jwt.token.len(), 183);
     }
 }

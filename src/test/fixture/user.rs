@@ -5,7 +5,7 @@ use crate::models::user_model::User;
 pub fn user_fixture(id: usize) -> User {
     User {
         id: id as i32,
-        email: String::from("taro"),
+        email: String::from("fixture@mail.com"),
         password: String::from("password"),
         created_at: DateTime::parse_from_rfc3339("2021-01-01T00:00:00Z")
             .unwrap()

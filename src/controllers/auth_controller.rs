@@ -1,8 +1,9 @@
-use crate::app::AppState;
+use crate::utils::NetworkResponse;
+use crate::{app::AppState, models::jwt_model::Jwt};
 use crate::db::ConnectionDb;
 use crate::dto::user_dto::UserInput;
 use crate::error::app_error::AppError;
-use crate::models::jwt_model::Jwt;
+use crate::models::jwt_model::JwtClaim;
 use rocket::serde::json::Json;
 use tracing::instrument;
 
@@ -14,12 +15,15 @@ async fn log_in(
     body: Json<UserInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
-    let auth = app
+    let jwt = app
         .use_cases
         .auth
         .log_in(&app.repos, &mut db, &body.email, &body.password)
         .await?;
-    Ok(Json(auth))
+
+    println!("[LOGIN] jwt: {:?}", jwt);
+
+    Ok(Json(jwt))
 }
 
 #[post("/register", data = "<body>")]
@@ -30,22 +34,28 @@ async fn register(
     body: Json<UserInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
-    app
-        .use_cases
+    let jwt = app.use_cases
         .auth
         .register(&app.repos, &mut db, &body.email, &body.password)
         .await?;
 
-    let auth = app
-        .use_cases
-        .auth
-        .log_in(&app.repos, &mut db, &body.email, &body.password)
-        .await?;
-    Ok(Json(auth))
+
+    Ok(Json(jwt))
+}
+
+#[get("/me")]
+#[instrument(name = "auth_controller/me", skip_all)]
+async fn me(
+    _app: &AppState,
+    mut _db: ConnectionDb,
+    key: Result<JwtClaim, NetworkResponse>,
+) -> Result<Json<JwtClaim>, NetworkResponse> {
+    let jwt_claim = key?;
+    Ok(Json(jwt_claim))
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![log_in, register]
+    routes![log_in, register, me]
 }
 
 // #[cfg(test)]

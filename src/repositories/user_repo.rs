@@ -62,7 +62,6 @@ impl UserRepo for UserRepoImpl {
         .map_err(|e| log_into!(e, DbRepoError))
     }
 
-
     #[instrument(name = "user_repo/find_all", skip_all)]
     async fn find_all(&self, con: &mut PgConnection) -> Result<Vec<User>, DbRepoError> {
         let users = query_as!(User, "SELECT * FROM users")

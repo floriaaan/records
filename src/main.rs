@@ -4,6 +4,7 @@ extern crate rocket;
 pub mod app;
 pub mod config;
 pub mod db;
+pub mod utils;
 
 mod error {
     pub mod app_error;

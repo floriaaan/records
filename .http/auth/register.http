@@ -1,11 +1,7 @@
-###
-# @prompt email Your email
-# @prompt password Your password
-
 POST http://localhost:8000/auth/register
 content-type: application/json
 
 {
-  "email": "{{email}}",
-  "password": "{{password}}"
+  "email": "user@mail.com",
+  "password": "password"
 }

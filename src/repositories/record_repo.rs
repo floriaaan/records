@@ -18,6 +18,7 @@ pub trait RecordRepo: Send + Sync {
     async fn create(
         &self,
         con: &mut PgConnection,
+        user_id: i32,
         title: &String,
         artist: &String,
         release_date: &String,
@@ -41,6 +42,7 @@ impl RecordRepo for RecordRepoImpl {
     async fn create(
         &self,
         con: &mut PgConnection,
+        user_id: i32,
         title: &String,
         artist: &String,
         release_date: &String,
@@ -48,7 +50,6 @@ impl RecordRepo for RecordRepoImpl {
         discogs_url: Option<String>,
         spotify_url: Option<String>,
     ) -> Result<Record, DbRepoError> {
-        let user_id = 1; // TODO: get user_id from token
         query_as!(
                     Record,
                     "INSERT INTO records (title, artist, release_date, cover_url, discogs_url, spotify_url, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",

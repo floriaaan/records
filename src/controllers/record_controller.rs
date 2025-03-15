@@ -2,13 +2,26 @@ use crate::app::AppState;
 use crate::db::ConnectionDb;
 use crate::dto::record_dto::RecordInput;
 use crate::error::app_error::AppError;
+use crate::models::jwt_model::JwtClaim;
 use crate::models::record_model::Record;
+use crate::utils::NetworkResponse;
 use rocket::serde::json::Json;
 use tracing::instrument;
 
 #[get("/")]
 #[instrument(name = "record_controller/index", skip_all)]
-async fn index(app: &AppState, mut db: ConnectionDb) -> Result<Json<Vec<Record>>, AppError> {
+async fn index(
+    app: &AppState,
+    mut db: ConnectionDb,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+) -> Result<Json<Vec<Record>>, AppError> {
+    let user = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+    println!("user: {:?}", user);
+
     let records = app.use_cases.record.find_all(&app.repos, &mut db).await?;
     Ok(Json(records))
 }
@@ -19,7 +32,14 @@ async fn add(
     app: &AppState,
     mut db: ConnectionDb,
     body: Json<RecordInput>,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
 ) -> Result<Json<Record>, AppError> {
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+
     let body = body.into_inner();
     let title = body.title;
     let artist = body.artist;
@@ -28,12 +48,14 @@ async fn add(
     let discogs_url = body.discogs_url;
     let spotify_url = body.spotify_url;
 
+
     let record = app
         .use_cases
         .record
         .create(
             &app.repos,
             &mut db,
+            user_id,
             &title,
             &artist,
             &release_date,
@@ -51,7 +73,13 @@ async fn get(
     app: &AppState,
     mut db: ConnectionDb,
     id: i32,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
 ) -> Result<Json<Option<Record>>, AppError> {
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
     let record = app
         .use_cases
         .record

@@ -20,8 +20,11 @@ async fn index(
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-
-    let records = app.use_cases.record.find_all_by_user_id(&app.repos, &mut db, user_id).await?;
+    let records = app
+        .use_cases
+        .record
+        .find_all_by_user_id(&app.repos, &mut db, user_id)
+        .await?;
     Ok(Json(records))
 }
 
@@ -38,7 +41,6 @@ async fn add(
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-
     let body = body.into_inner();
     let title = body.title;
     let artist = body.artist;
@@ -46,7 +48,6 @@ async fn add(
     let cover_url = body.cover_url;
     let discogs_url = body.discogs_url;
     let spotify_url = body.spotify_url;
-
 
     let record = app
         .use_cases
@@ -79,11 +80,21 @@ async fn get(
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-    let record = app
+    let record = match app
         .use_cases
         .record
         .find_by_id(&app.repos, &mut db, id)
-        .await?;
+        .await?
+    {
+        Some(record) => {
+            if record.user_id != user_id {
+                return Err(AppError::Unauthorized);
+            }
+            Some(record)
+        }
+        None => None,
+    };
+
     Ok(Json(record))
 }
 

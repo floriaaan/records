@@ -35,6 +35,18 @@ pub trait RecordUseCase: Send + Sync {
         db_con: &mut DbCon,
         id: i32,
     ) -> Result<Option<Record>, AppError>;
+    async fn find_all_by_user_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+    ) -> Result<Vec<Record>, AppError>;
+    async fn get_random_by_user_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+    ) -> Result<Option<Record>, AppError>;
 }
 
 #[async_trait]
@@ -73,6 +85,29 @@ impl RecordUseCase for RecordUseCaseImpl {
         let records = repos.record.find_all(&mut *db_con).await?;
         Ok(records)
     }
+    
+    #[instrument(name = "record_use_case/find_all_by_user_id", skip_all)]
+    async fn find_all_by_user_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+    ) -> Result<Vec<Record>, AppError> {
+        let records = repos.record.find_all_by_user_id(&mut *db_con, user_id).await?;
+        Ok(records)
+    }
+
+    #[instrument(name = "record_use_case/get_random_by_user_id", skip_all)]
+    async fn get_random_by_user_id(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+    ) -> Result<Option<Record>, AppError> {
+        let record = repos.record.get_random_by_user_id(&mut *db_con, user_id).await?;
+        Ok(record)
+    }
+
 
     #[instrument(name = "record_use_case/find_by_id", skip_all)]
     async fn find_by_id(

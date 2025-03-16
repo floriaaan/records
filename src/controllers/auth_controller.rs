@@ -21,8 +21,6 @@ async fn log_in(
         .log_in(&app.repos, &mut db, &body.email, &body.password)
         .await?;
 
-    println!("[LOGIN] jwt: {:?}", jwt);
-
     Ok(Json(jwt))
 }
 

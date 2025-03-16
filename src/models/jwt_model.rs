@@ -38,8 +38,6 @@ pub fn decode_jwt(token: String) -> Result<JwtClaim, ErrorKind> {
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set.");
     let token = token.trim_start_matches("Bearer").trim();
 
-    println!("Token: {}", token);
-
     match decode::<JwtClaim>(
         &token,
         &DecodingKey::from_secret(secret.as_bytes()),
@@ -57,8 +55,6 @@ impl<'r> FromRequest<'r> for JwtClaim {
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, NetworkResponse> {
         fn is_valid(key: &str) -> Result<JwtClaim, Error> {
             let claim = decode_jwt(String::from(key))?;
-
-            println!("Claim: {:?}", claim);
 
             Ok(claim)
         }

@@ -15,14 +15,13 @@ async fn index(
     mut db: ConnectionDb,
     jwt_claim: Result<JwtClaim, NetworkResponse>,
 ) -> Result<Json<Vec<Record>>, AppError> {
-    let user = jwt_claim
+    let user_id = jwt_claim
         .map_err(|_| AppError::Unauthorized)
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-    println!("user: {:?}", user);
 
-    let records = app.use_cases.record.find_all(&app.repos, &mut db).await?;
+    let records = app.use_cases.record.find_all_by_user_id(&app.repos, &mut db, user_id).await?;
     Ok(Json(records))
 }
 
@@ -88,8 +87,28 @@ async fn get(
     Ok(Json(record))
 }
 
+#[get("/random")]
+#[instrument(name = "record_controller/random", skip_all)]
+async fn random(
+    app: &AppState,
+    mut db: ConnectionDb,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+) -> Result<Json<Option<Record>>, AppError> {
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+    let record = app
+        .use_cases
+        .record
+        .get_random_by_user_id(&app.repos, &mut db, user_id)
+        .await?;
+    Ok(Json(record))
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, add, get]
+    routes![index, add, get, random]
 }
 
 #[cfg(test)]

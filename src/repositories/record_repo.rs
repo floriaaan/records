@@ -32,6 +32,17 @@ pub trait RecordRepo: Send + Sync {
         con: &mut PgConnection,
         id: i32,
     ) -> Result<Option<Record>, DbRepoError>;
+    async fn find_all_by_user_id(
+        &self,
+        con: &mut PgConnection,
+        user_id: i32,
+    ) -> Result<Vec<Record>, DbRepoError>;
+    // async fn update(&self, con: &mut PgConnection, id: i32, name: &String) -> Result<Record, DbRepoError>;
+    async fn get_random_by_user_id(
+        &self,
+        con: &mut PgConnection,
+        user_id: i32,
+    ) -> Result<Option<Record>, DbRepoError>;
 
     async fn delete(&self, con: &mut PgConnection, id: i32) -> Result<(), DbRepoError>;
 }
@@ -75,6 +86,19 @@ impl RecordRepo for RecordRepoImpl {
         Ok(records)
     }
 
+    #[instrument(name = "record_repo/find_all_by_user_id", skip_all)]
+    async fn find_all_by_user_id(
+        &self,
+        con: &mut PgConnection,
+        user_id: i32,
+    ) -> Result<Vec<Record>, DbRepoError> {
+        let records = query_as!(Record, "SELECT * FROM records WHERE user_id = $1", user_id)
+            .fetch_all(&mut *con)
+            .await
+            .map_err(|e| log_into!(e, DbRepoError))?;
+        Ok(records)
+    }
+
     #[instrument(name = "record_repo/find_by_id", skip_all, fields(id = %id))]
     async fn find_by_id(
         &self,
@@ -104,6 +128,18 @@ impl RecordRepo for RecordRepoImpl {
     //     .await
     //     .map_err(|e| log_into!(e, DbRepoError))
     // }
+
+    #[instrument(name = "record_repo/get_random_by_user_id", skip_all, fields(user_id = %user_id))]
+    async fn get_random_by_user_id(
+        &self,
+        con: &mut PgConnection,
+        user_id: i32,
+    ) -> Result<Option<Record>, DbRepoError> {
+        query_as!(Record, "SELECT * FROM records WHERE user_id = $1 ORDER BY RANDOM() LIMIT 1", user_id)
+            .fetch_optional(&mut *con)
+            .await
+            .map_err(|e| log_into!(e, DbRepoError))
+    }
 
     #[instrument(name = "record_repo/delete", skip_all, fields(id = %id))]
     async fn delete(&self, con: &mut PgConnection, id: i32) -> Result<(), DbRepoError> {
@@ -141,8 +177,6 @@ mod tests {
         assert!(result.is_ok());
         tx.rollback().await.unwrap();
     }
-
-    
 
     #[tokio::test]
     async fn test_delete_record() {

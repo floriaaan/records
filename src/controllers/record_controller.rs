@@ -118,8 +118,24 @@ async fn random(
     Ok(Json(record))
 }
 
+#[get("/search?<query>")]
+#[instrument(name = "record_controller/search", skip_all)]
+async fn search(
+    app: &AppState,
+    query: String,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+) -> Result<Json<Vec<Record>>, AppError> {
+    let _user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+    let records = app.use_cases.record.search(&query).await?;
+    Ok(Json(records))
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, add, get, random]
+    routes![index, add, get, random, search]
 }
 
 #[cfg(test)]

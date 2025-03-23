@@ -1,0 +1,531 @@
+{
+  "db": "PostgreSQL",
+  "018853717028c30688b107c173b328b05a35f231a6e0d6edf9b4ba8beb5530d5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM records WHERE id = $1"
+  },
+  "0af2460d0a3a80171e2248a917e35f47fb50b987392ed0682c59718fbd47ffcf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "artist",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "release_date",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "cover_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discogs_url",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "spotify_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM records WHERE id = $1"
+  },
+  "21bd1ad0d2f67b994bae015d83a63ae0543a1b807bd377ddba9662423b397225": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "artist",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "release_date",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "cover_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discogs_url",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "spotify_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM records WHERE user_id = $1"
+  },
+  "26e7e05427bc7dabcd7815d27764fda2baf4cfe60a2d2d6ee2a1f773dccbbce2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM users"
+  },
+  "3e320f021f38b70d25f6787678a69cab5446ae92e65af1e7f75bec6c8de39955": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *"
+  },
+  "4a30f582bd850433e83468517e0ae55422321ec231835633dadb8ffdee3cb53e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "artist",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "release_date",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "cover_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discogs_url",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "spotify_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM records WHERE user_id = $1 ORDER BY RANDOM() LIMIT 1"
+  },
+  "50293c2e54af11d4c2a553e29b671cef087a159c6ee7182d8ca929ecb748f3b7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM users WHERE id = $1"
+  },
+  "74596736dfa12a9c87d90386cac9f8929ace60f3223e4e979881ba86c75c50d7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "artist",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "release_date",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "cover_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discogs_url",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "spotify_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Date",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO records (title, artist, release_date, cover_url, discogs_url, spotify_url, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
+  },
+  "843923b9a0257cf80f1dff554e7dc8fdfc05f489328e8376513124dfb42996e3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM users WHERE id = $1"
+  },
+  "93b4e2ad79ad721c0f4657898c2baa3eb1e31a74f7fc16f9632d9549df116a05": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE users SET email = $1 WHERE id = $2 RETURNING *"
+  },
+  "ce9f77a4f19b808b0f9b3075425f7058dcb11a7bf98ca0acd586e7be366ebed0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "artist",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "release_date",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "cover_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discogs_url",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "spotify_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM records"
+  },
+  "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM users WHERE email = $1"
+  }
+}

@@ -10,8 +10,9 @@ temp_dir = "/tmp"
 cli_colors = true
 
 [default.databases.records]
-url = "postgres://user:password@localhost/records"
+url = "postgres://user:password@db/records"
 min_connections = 1
-max_connections = 5
-connect_timeout = 5
+max_connections = 10
+connect_timeout = 20
+pool_timeout = 30
 idle_timeout = 120

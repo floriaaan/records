@@ -38,6 +38,8 @@ mod models {
 mod dto {
     pub mod record_dto;
     pub mod user_dto;
+    pub mod discogs_dto;
+    pub mod spotify_dto;
 }
 
 #[cfg(test)]

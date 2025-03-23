@@ -1,0 +1,79 @@
+FROM lukemathwalker/cargo-chef:latest AS chef
+WORKDIR /app
+
+FROM chef AS planner
+COPY ./Cargo.toml ./Cargo.lock ./
+COPY ./src ./src
+RUN cargo chef prepare
+
+
+
+# FROM chef AS builder
+# RUN apt update && apt install -y libssl-dev musl-tools pkg-config
+
+# # Pass build architecture from Buildx (e.g., amd64, arm64)
+# ARG TARGETARCH
+# # Set the MUSL target triple (adjust if needed)
+# ENV MUSL_TARGET=${TARGETARCH}-unknown-linux-musl
+
+# COPY --from=planner /app/recipe.json .
+# RUN cargo chef cook --release
+
+# COPY . .
+
+# ENV SQLX_OFFLINE=true
+
+# RUN rustup target add ${MUSL_TARGET}
+# RUN cargo build --release --target=${MUSL_TARGET}
+# RUN mv ./target/${MUSL_TARGET}/release/records /app/records
+
+
+FROM chef AS builder
+RUN apt update && apt install -y libssl-dev musl-tools pkg-config
+
+ENV SQLX_OFFLINE=true
+COPY . .
+COPY --from=planner /app/recipe.json .
+
+# Pass build architecture from Buildx (e.g., amd64, arm64)
+ARG TARGETARCH
+
+# Conditionally set the MUSL target based on TARGETARCH
+# Conditionally set the MUSL target.
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      MUSL_TARGET="aarch64-unknown-linux-musl"; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+      MUSL_TARGET="x86_64-unknown-linux-musl"; \
+    else \
+      MUSL_TARGET="${TARGETARCH}-unknown-linux-musl"; \
+    fi && \
+    echo "Using MUSL target: $MUSL_TARGET" && \
+    rustup target add "$MUSL_TARGET" && \
+    \
+    # Build musl-compatible OpenSSL  
+    wget https://www.openssl.org/source/openssl-1.1.1u.tar.gz && \
+    tar -xzvf openssl-1.1.1u.tar.gz && \
+    cd openssl-1.1.1u && \
+    ./Configure linux-musl no-shared --prefix=/usr/local/ssl && \
+    make -j$(nproc) && \
+    make install && cd .. && \
+    \
+    # Tell the openssl-sys crate where OpenSSL is located  
+    export OPENSSL_DIR=/usr/local/ssl && \
+    cargo chef cook --release && \
+    cargo build --release --target="$MUSL_TARGET" && \
+    mv ./target/"$MUSL_TARGET"/release/records /app/records
+
+
+
+
+FROM tommylike/rust-sqlx:latest AS runtime
+WORKDIR /app
+COPY --from=builder /app/records /app/records
+
+RUN apt update && apt install -y netcat-openbsd
+COPY ./migrations ./migrations
+COPY ./docker-entrypoint.sh .
+
+RUN chmod +x ./docker-entrypoint.sh
+ENTRYPOINT [ "./docker-entrypoint.sh" ]

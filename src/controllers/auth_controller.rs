@@ -1,11 +1,12 @@
-use crate::utils::NetworkResponse;
-use crate::{app::AppState, models::jwt_model::Jwt};
 use crate::db::ConnectionDb;
 use crate::dto::user_dto::UserInput;
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::JwtClaim;
+use crate::utils::NetworkResponse;
+use crate::{app::AppState, models::jwt_model::Jwt};
 use rocket::serde::json::Json;
 use tracing::instrument;
+use validator::Validate;
 
 #[post("/login", data = "<body>")]
 #[instrument(name = "auth_controller/log_in", skip_all)]
@@ -15,6 +16,22 @@ async fn log_in(
     body: Json<UserInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
+
+    match body.validate() {
+        Ok(_) => {}
+        Err(e) => {
+            let errors = e
+                .field_errors()
+                .iter()
+                .map(|(k, v)| format!("{}: {:?}", k, v))
+                .collect::<Vec<String>>()
+                .join(", ");
+            return Err(AppError::ValidationError {
+                message: errors,
+            });
+        }
+    }
+
     let jwt = app
         .use_cases
         .auth
@@ -32,11 +49,28 @@ async fn register(
     body: Json<UserInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
-    let jwt = app.use_cases
+
+    match body.validate() {
+        Ok(_) => {}
+        Err(e) => {
+            let errors = e
+                .field_errors()
+                .iter()
+                .map(|(k, v)| format!("{}: {:?}", k, v))
+                .collect::<Vec<String>>()
+                .join(", ");
+            
+            return Err(AppError::ValidationError {
+                message: errors,
+            });
+        }
+    }
+
+    let jwt = app
+        .use_cases
         .auth
         .register(&app.repos, &mut db, &body.email, &body.password)
         .await?;
-
 
     Ok(Json(jwt))
 }

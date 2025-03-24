@@ -2,7 +2,9 @@ use crate::app::AppState;
 use crate::db::ConnectionDb;
 use crate::dto::user_dto::{UserEmail, UserInput};
 use crate::error::app_error::AppError;
+use crate::models::jwt_model::JwtClaim;
 use crate::models::user_model::User;
+use crate::utils::NetworkResponse;
 use rocket::serde::json::Json;
 use tracing::instrument;
 
@@ -31,27 +33,44 @@ async fn create(
     Ok(Json(user))
 }
 
-#[put("/<id>", data = "<email>")]
-#[instrument(name = "user_controller/update", skip_all, fields(id = %id))]
+#[put("/", data = "<body>")]
+#[instrument(name = "user_controller/update", skip_all)]
 async fn update(
     app: &AppState,
     mut db: ConnectionDb,
-    id: i32,
-    email: Json<UserEmail>,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+    body: Json<UserEmail>,
 ) -> Result<Json<User>, AppError> {
-    let email = email.into_inner().email;
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+    let email = body.into_inner().email;
     let user = app
         .use_cases
         .user
-        .update(&app.repos, &mut db, id, &email)
+        .update(&app.repos, &mut db, user_id, &email)
         .await?;
     Ok(Json(user))
 }
 
-#[delete("/<id>")]
-#[instrument(name = "user_controller/delete", skip_all, fields(id = %id))]
-async fn delete(app: &AppState, mut db: ConnectionDb, id: i32) -> Result<(), AppError> {
-    app.use_cases.user.delete(&app.repos, &mut db, id).await?;
+#[delete("/")]
+#[instrument(name = "user_controller/delete", skip_all)]
+async fn delete(
+    app: &AppState,
+    mut db: ConnectionDb,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+) -> Result<(), AppError> {
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
+
+    app.use_cases
+        .user
+        .delete(&app.repos, &mut db, user_id)
+        .await?;
     Ok(())
 }
 

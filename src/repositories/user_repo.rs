@@ -59,7 +59,7 @@ impl UserRepo for UserRepoImpl {
         )
         .fetch_one(&mut *con)
         .await
-        .map_err(|e| log_into!(e, DbRepoError))
+        .map_err(|e| log_into!(e, DbRepoError ))
     }
 
     #[instrument(name = "user_repo/find_all", skip_all)]

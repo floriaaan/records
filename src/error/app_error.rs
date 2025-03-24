@@ -18,6 +18,10 @@ pub enum AppError {
     NotFound,
     #[error("Internal Server Error")]
     InternalServerError,
+
+    #[error("Validation error: {message}")]
+    ValidationError { message: String },
+
     #[error("{message}")]
     CustomError { status_code: u16, message: String },
 }
@@ -38,6 +42,7 @@ impl AppError {
             AppError::Forbidden => 403,
             AppError::NotFound => 404,
             AppError::InternalServerError => 500,
+            AppError::ValidationError { .. } => 400,
             AppError::CustomError { status_code, .. } => *status_code,
         }
     }

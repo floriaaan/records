@@ -7,6 +7,7 @@ use crate::models::record_model::Record;
 use crate::utils::NetworkResponse;
 use rocket::serde::json::Json;
 use tracing::instrument;
+use validator::Validate;
 
 #[get("/")]
 #[instrument(name = "record_controller/index", skip_all)]
@@ -42,6 +43,24 @@ async fn add(
         .map_err(|_| AppError::Unauthorized)?;
 
     let body = body.into_inner();
+    
+
+    match body.validate() {
+        Ok(_) => {}
+        Err(e) => {
+            let errors = e
+                .field_errors()
+                .iter()
+                .map(|(k, v)| format!("{}: {:?}", k, v))
+                .collect::<Vec<String>>()
+                .join(", ");
+            
+            return Err(AppError::ValidationError {
+                message: errors,
+            });
+        }
+    }
+
     let title = body.title;
     let artist = body.artist;
     let release_date = body.release_date;

@@ -80,4 +80,10 @@ async fn rocket() -> _ {
         .mount("/users", user_controller::routes())
         .mount("/records", record_controller::routes())
         .mount("/auth", auth_controller::routes())
+        .mount("/health-check", routes![health_check])
+}
+
+#[get("/")]
+async fn health_check() -> &'static str {
+    "OK"
 }

@@ -30,7 +30,7 @@ WORKDIR /app
 
 # Install necessary runtime dependencies (static netcat)
 # RUN apk add --no-cache netcat-openbsd libssl
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates netcat-openbsd && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates netcat-openbsd curl && rm -rf /var/lib/apt/lists/*
 
 # Install rust, cargo, and sqlx-cli
 COPY --from=builder /usr/local/cargo/bin/sqlx /app/sqlx

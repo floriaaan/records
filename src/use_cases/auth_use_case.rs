@@ -70,14 +70,20 @@ impl AuthUseCase for AuthUseCaseImpl {
     ) -> Result<Jwt, AppError> {
         let user = repos.user.find_by_email(&mut *db_con, email).await?;
         if user.is_none() {
-            return Err(AppError::from(DbRepoError::NotFound));
+            return Err(AppError::CustomError {
+                status_code: 401,
+                message: "Invalid email or password".to_string(),
+            });
         }
 
         let unwrapped_user = &user.unwrap();
 
         let is_valid = verify(password, &unwrapped_user.password).unwrap();
         if !is_valid {
-            return Err(AppError::from(DbRepoError::NotFound));
+            return Err(AppError::CustomError {
+                status_code: 401,
+                message: "Invalid email or password".to_string(),
+            });
         }
 
         let jwt_claim = generate_jwt(unwrapped_user.id).await;

@@ -3,5 +3,5 @@ content-type: application/json
 
 {
   "email": "user@mail.com",
-  "password": "password"
+  "password": "This;Is,a@Str0ngPassword=="
 }

@@ -43,22 +43,10 @@ async fn add(
         .map_err(|_| AppError::Unauthorized)?;
 
     let body = body.into_inner();
-    
 
     match body.validate() {
         Ok(_) => {}
-        Err(e) => {
-            let errors = e
-                .field_errors()
-                .iter()
-                .map(|(k, v)| format!("{}: {:?}", k, v))
-                .collect::<Vec<String>>()
-                .join(", ");
-            
-            return Err(AppError::ValidationError {
-                message: errors,
-            });
-        }
+        Err(e) => return Err(AppError::ValidationError { errors: e }),
     }
 
     let title = body.title;

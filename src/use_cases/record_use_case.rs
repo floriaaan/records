@@ -2,6 +2,7 @@ use std::env;
 
 use crate::db::DbCon;
 use crate::dto::discogs_dto::DiscogsRoot;
+use crate::dto::record_dto::RecordInput;
 use crate::dto::spotify_dto::{SpotifyAccessTokenRoot, SpotifyRoot};
 use crate::error::app_error::AppError;
 use crate::models::record_model::Record;
@@ -26,13 +27,16 @@ pub trait RecordUseCase: Send + Sync {
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
-        title: &String,
-        artist: &String,
-        release_date: &String,
-        cover_url: &String,
-        discogs_url: Option<String>,
-        spotify_url: Option<String>,
+        record: RecordInput,
     ) -> Result<Record, AppError>;
+    async fn create_multiple(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+        records: Vec<RecordInput>,
+    ) -> Result<Vec<Record>, AppError>;
+
     async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<Record>, AppError>;
     async fn find_by_id(
         &self,
@@ -64,27 +68,22 @@ impl RecordUseCase for RecordUseCaseImpl {
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
-        title: &String,
-        artist: &String,
-        release_date: &String,
-        cover_url: &String,
-        discogs_url: Option<String>,
-        spotify_url: Option<String>,
+        record: RecordInput,
     ) -> Result<Record, AppError> {
-        let record = repos
-            .record
-            .create(
-                &mut *db_con,
-                user_id,
-                title,
-                artist,
-                release_date,
-                cover_url,
-                discogs_url,
-                spotify_url,
-            )
-            .await?;
-        Ok(record)
+        let created_record = repos.record.create(&mut *db_con, user_id, record).await?;
+        Ok(created_record)
+    }
+
+    #[instrument(name = "record_use_case/create_multiple", skip_all)]
+    async fn create_multiple(
+        &self,
+        repos: &Repos,
+        db_con: &mut DbCon,
+        user_id: i32,
+        records: Vec<RecordInput>,
+    ) -> Result<Vec<Record>, AppError> {
+        let created_records = repos.record.create_multiple(&mut *db_con, user_id, records).await?;
+        Ok(created_records)
     }
 
     #[instrument(name = "record_use_case/find_all", skip_all)]

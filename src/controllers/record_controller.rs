@@ -43,30 +43,31 @@ async fn add(
         .map_err(|_| AppError::Unauthorized)?;
 
     let inputs = body.into_inner();
-    let mut created_records = Vec::with_capacity(inputs.len());
-
-    for record_input in inputs {
+    for record_input in &inputs {
         record_input
             .validate()
             .map_err(|e| AppError::ValidationError { errors: e })?;
-
-        let record = app
-            .use_cases
-            .record
-            .create(
-                &app.repos,
-                &mut db,
-                user_id,
-                &record_input.title,
-                &record_input.artist,
-                &record_input.release_date,
-                &record_input.cover_url,
-                record_input.discogs_url,
-                record_input.spotify_url,
-            )
-            .await?;
-        created_records.push(record);
     }
+
+    let created_records = app
+        .use_cases
+        .record
+        .create_multiple(&app.repos, &mut db, user_id, inputs)
+        .await?;
+
+
+    // for record_input in inputs {
+    //     record_input
+    //         .validate()
+    //         .map_err(|e| AppError::ValidationError { errors: e })?;
+
+    //     let record = app
+    //         .use_cases
+    //         .record
+    //         .create(&app.repos, &mut db, user_id, record_input)
+    //         .await?;
+    //     created_records.push(record);
+    // }
 
     Ok(Json(created_records))
 }

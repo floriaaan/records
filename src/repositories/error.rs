@@ -1,10 +1,13 @@
+use schemars::JsonSchema;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, JsonSchema)]
 pub enum DbRepoError {
     #[error("[DbRepoError::SerdeError] {0}")]
+    #[serde(skip)]
     SerdeError(#[from] serde_json::Error),
     #[error("[DbRepoError::SqlxError] {0}")]
+    #[serde(skip)]
     SqlxError(#[from] sqlx::Error),
 
     #[error("[DbRepoError::NotFound] Record not found")]

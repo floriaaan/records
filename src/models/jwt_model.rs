@@ -62,22 +62,22 @@ impl<'r> FromRequest<'r> for JwtClaim {
         match req.headers().get_one("authorization") {
             None => {
                 let response = Response{ body: ResponseBody::Message(String::from("Error validating JWT token - No token provided"))};
-                Outcome::Failure((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
+                Outcome::Error((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
             },
             Some(key) => match is_valid(key) {
                 Ok(claims) => Outcome::Success(claims),
                 Err(err) => match &err.kind() {
                     jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
                         let response = Response { body: ResponseBody::Message(format!("Error validating JWT token - Expired Token"))};
-                        Outcome::Failure((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
+                        Outcome::Error((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
                     },
                     jsonwebtoken::errors::ErrorKind::InvalidToken => {
                         let response = Response { body: ResponseBody::Message(format!("Error validating JWT token - Invalid Token"))};
-                        Outcome::Failure((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
+                        Outcome::Error((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
                     },
                     _ => {
                         let response = Response { body: ResponseBody::Message(format!("Error validating JWT token - {}", err))};
-                        Outcome::Failure((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
+                        Outcome::Error((Status::Unauthorized, NetworkResponse::Unauthorized(serde_json::to_string(&response).unwrap()))) 
                     }
                 }
             },

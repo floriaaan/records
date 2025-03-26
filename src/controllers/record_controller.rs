@@ -8,7 +8,13 @@ use crate::utils::NetworkResponse;
 use rocket::serde::json::Json;
 use tracing::instrument;
 use validator::Validate;
+use rocket_okapi::openapi;
 
+
+/// # Get all records
+///
+/// Returns all records for the given user (via the JWT key provided in the headers).
+#[openapi(tag = "Users")]
 #[get("/")]
 #[instrument(name = "record_controller/index", skip_all)]
 async fn index(

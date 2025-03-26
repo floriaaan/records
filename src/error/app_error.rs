@@ -7,8 +7,11 @@ use rocket::Request;
 use serde::Serialize;
 use thiserror::Error;
 use validator::ValidationErrors;
+use rocket_okapi::response::{OpenApiResponder, OpenApiResponderInner};
+use rocket_okapi::JsonSchema;
 
-#[derive(Debug, Error)]
+
+#[derive(Debug, Error, JsonSchema)]
 pub enum AppError {
     #[error("Database Error")]
     DbError(#[from] DbRepoError),
@@ -24,6 +27,7 @@ pub enum AppError {
     InternalServerError,
 
     #[error("Validation error")]
+    #[serde(skip)]
     ValidationError { errors: ValidationErrors },
 
     #[error("{message}")]

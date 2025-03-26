@@ -43,7 +43,7 @@ impl UserUseCase for UserUseCaseImpl {
         db_con: &mut DbCon,
         email: &String,
         password: &String,
-    ) -> Result<User, AppError> {
+    ) -> Result<User, AppError> { 
         repos
             .user
             .create(&mut *db_con, email, password)

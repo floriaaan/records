@@ -34,44 +34,42 @@ async fn index(
 async fn add(
     app: &AppState,
     mut db: ConnectionDb,
-    body: Json<RecordInput>,
+    body: Json<Vec<RecordInput>>,
     jwt_claim: Result<JwtClaim, NetworkResponse>,
-) -> Result<Json<Record>, AppError> {
+) -> Result<Json<Vec<Record>>, AppError> {
     let user_id = jwt_claim
         .map_err(|_| AppError::Unauthorized)
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-    let body = body.into_inner();
-
-    match body.validate() {
-        Ok(_) => {}
-        Err(e) => return Err(AppError::ValidationError { errors: e }),
+    let inputs = body.into_inner();
+    for record_input in &inputs {
+        record_input
+            .validate()
+            .map_err(|e| AppError::ValidationError { errors: e })?;
     }
 
-    let title = body.title;
-    let artist = body.artist;
-    let release_date = body.release_date;
-    let cover_url = body.cover_url;
-    let discogs_url = body.discogs_url;
-    let spotify_url = body.spotify_url;
-
-    let record = app
+    let created_records = app
         .use_cases
         .record
-        .create(
-            &app.repos,
-            &mut db,
-            user_id,
-            &title,
-            &artist,
-            &release_date,
-            &cover_url,
-            discogs_url,
-            spotify_url,
-        )
+        .create_multiple(&app.repos, &mut db, user_id, inputs)
         .await?;
-    Ok(Json(record))
+
+
+    // for record_input in inputs {
+    //     record_input
+    //         .validate()
+    //         .map_err(|e| AppError::ValidationError { errors: e })?;
+
+    //     let record = app
+    //         .use_cases
+    //         .record
+    //         .create(&app.repos, &mut db, user_id, record_input)
+    //         .await?;
+    //     created_records.push(record);
+    // }
+
+    Ok(Json(created_records))
 }
 
 #[get("/<id>")]

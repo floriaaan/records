@@ -17,21 +17,30 @@ POST {{baseUrl}}/records/
 content-type: application/json
 Authorization: Bearer {{authToken}}
 
-# {
-#     "title": "Discovery",
-#     "artist": "Daft Punk",
-#     "release_date": "2001-03-12",
-#     "cover_url": "https://upload.wikimedia.org/wikipedia/en/a/a7/Daft_Punk_-_Discovery.jpg",
-#     "discogs_url": "https://www.discogs.com/fr/Daft-Punk-Discovery/master/10367",
-#     "spotify_url": "https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc"
-# }
-
-{
-    "title": "After Hours",
-    "artist": "The Weeknd",
-    "release_date": "2020-03-20",
-    "cover_url": "https://upload.wikimedia.org/wikipedia/en/8/8e/The_Weeknd_-_After_Hours.png",
-    "discogs_url": "https://www.discogs.com/fr/The-Weeknd-After-Hours/master/1698927",
-    "spotify_url": "https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj"
-}
+[
+    {
+        "title": "After Hours",
+        "artist": "The Weeknd",
+        "release_date": "2020-03-20",
+        "cover_url": "https://upload.wikimedia.org/wikipedia/en/8/8e/The_Weeknd_-_After_Hours.png",
+        "discogs_url": "https://www.discogs.com/fr/The-Weeknd-After-Hours/master/1698927",
+        "spotify_url": "https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj"
+    },
+    {
+        "title": "Discovery",
+        "artist": "Daft Punk",
+        "release_date": "2001-03-12",
+        "cover_url": "https://upload.wikimedia.org/wikipedia/en/a/a7/Daft_Punk_-_Discovery.jpg",
+        "discogs_url": "https://www.discogs.com/fr/Daft-Punk-Discovery/master/10367",
+        "spotify_url": "https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc"
+    },
+    {
+        "title": "Random Access Memories",
+        "artist": "Daft Punk",
+        "release_date": "2013-05-17",
+        "cover_url": "https://upload.wikimedia.org/wikipedia/en/a/a7/Daft_Punk_-_Random_Access_Memories.jpg",
+        "discogs_url": "https://www.discogs.com/fr/Daft-Punk-Random-Access-Memories/master/555840",
+        "spotify_url": "https://open.spotify.com/album/4m2880jivSbbyEGAKfITCa"
+    }
+]
 

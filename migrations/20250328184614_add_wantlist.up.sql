@@ -1,0 +1,5 @@
+-- Add up migration script here
+ALTER TABLE records
+ADD COLUMN owned BOOL DEFAULT FALSE NOT NULL,
+ADD COLUMN wanted BOOL DEFAULT FALSE NOT NULL;
+

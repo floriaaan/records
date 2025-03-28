@@ -13,5 +13,8 @@ pub struct Record {
     pub discogs_url: Option<String>,
     pub spotify_url: Option<String>,
 
+    pub owned: bool,
+    pub wanted: bool,
+
     pub user_id: i32,
 }

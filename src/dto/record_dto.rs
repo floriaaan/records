@@ -23,4 +23,8 @@ pub struct RecordInput {
 
     #[validate(url(message = "Spotify URL is not a valid URL"))]
     pub spotify_url: Option<String>,
+
+    pub owned: Option<bool>,
+
+    pub wanted: Option<bool>,
 }

@@ -55,6 +55,8 @@ async fn add(
     let cover_url = body.cover_url;
     let discogs_url = body.discogs_url;
     let spotify_url = body.spotify_url;
+    let owned = body.owned;
+    let wanted = body.wanted;
 
     let record = app
         .use_cases
@@ -69,6 +71,8 @@ async fn add(
             &cover_url,
             discogs_url,
             spotify_url,
+            owned,
+            wanted,
         )
         .await?;
     Ok(Json(record))

@@ -25,6 +25,8 @@ pub trait RecordRepo: Send + Sync {
         cover_url: &String,
         discogs_url: Option<String>,
         spotify_url: Option<String>,
+        owned: bool,
+        wanted: bool,
     ) -> Result<Record, DbRepoError>;
     async fn find_all(&self, con: &mut PgConnection) -> Result<Vec<Record>, DbRepoError>;
     async fn find_by_id(
@@ -60,21 +62,40 @@ impl RecordRepo for RecordRepoImpl {
         cover_url: &String,
         discogs_url: Option<String>,
         spotify_url: Option<String>,
+        owned: bool,
+        wanted: bool,
     ) -> Result<Record, DbRepoError> {
         query_as!(
                     Record,
-                    "INSERT INTO records (title, artist, release_date, cover_url, discogs_url, spotify_url, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+                    "INSERT INTO records (title, artist, release_date, cover_url, discogs_url, spotify_url, owned, wanted, user_id) VALUES ($1::TEXT, $2::TEXT, $3::DATE, $4::TEXT, $5::TEXT, $6::TEXT, $7::BOOLEAN, $8::BOOLEAN, $9::INTEGER) RETURNING *",
                     title,
                     artist,
                     chrono::NaiveDate::parse_from_str(release_date, "%Y-%m-%d").unwrap(),
                     cover_url,
                     discogs_url,
                     spotify_url,
+                    owned,
+                    wanted,
                     user_id
                 )
         .fetch_one(&mut *con)
         .await
-        .map_err(|e| log_into!(e, DbRepoError))
+        .map_err(|e| log_into!(e, DbRepoError)).map(
+            |record| {
+                Record {
+                    id: record.id,
+                    title: record.title,
+                    artist: record.artist,
+                    release_date: record.release_date,
+                    cover_url: record.cover_url,
+                    discogs_url: record.discogs_url,
+                    spotify_url: record.spotify_url,
+                    owned: record.owned,
+                    wanted: record.wanted,
+                    user_id: record.user_id,
+                }
+            },
+        )
     }
 
     #[instrument(name = "record_repo/find_all", skip_all)]
@@ -135,10 +156,14 @@ impl RecordRepo for RecordRepoImpl {
         con: &mut PgConnection,
         user_id: i32,
     ) -> Result<Option<Record>, DbRepoError> {
-        query_as!(Record, "SELECT * FROM records WHERE user_id = $1 ORDER BY RANDOM() LIMIT 1", user_id)
-            .fetch_optional(&mut *con)
-            .await
-            .map_err(|e| log_into!(e, DbRepoError))
+        query_as!(
+            Record,
+            "SELECT * FROM records WHERE user_id = $1 ORDER BY RANDOM() LIMIT 1",
+            user_id
+        )
+        .fetch_optional(&mut *con)
+        .await
+        .map_err(|e| log_into!(e, DbRepoError))
     }
 
     #[instrument(name = "record_repo/delete", skip_all, fields(id = %id))]

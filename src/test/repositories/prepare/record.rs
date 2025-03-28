@@ -12,6 +12,9 @@ pub async fn create_record(db_con: &mut PgConnection) -> Result<Record, DbRepoEr
     let cover_url = "cover_url".to_string();
     let discogs_url = Some("discogs_url".to_string());
     let spotify_url = Some("spotify_url".to_string());
+    let owned = true;
+    let wanted = false;
+
     let user_id = 1;
 
     record_repo
@@ -24,6 +27,8 @@ pub async fn create_record(db_con: &mut PgConnection) -> Result<Record, DbRepoEr
             &cover_url,
             discogs_url,
             spotify_url,
+            owned,
+            wanted,
         )
         .await
 }

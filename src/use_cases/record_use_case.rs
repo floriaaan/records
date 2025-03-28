@@ -32,6 +32,8 @@ pub trait RecordUseCase: Send + Sync {
         cover_url: &String,
         discogs_url: Option<String>,
         spotify_url: Option<String>,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Record, AppError>;
     async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<Record>, AppError>;
     async fn find_by_id(
@@ -70,6 +72,8 @@ impl RecordUseCase for RecordUseCaseImpl {
         cover_url: &String,
         discogs_url: Option<String>,
         spotify_url: Option<String>,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Record, AppError> {
         let record = repos
             .record
@@ -82,6 +86,8 @@ impl RecordUseCase for RecordUseCaseImpl {
                 cover_url,
                 discogs_url,
                 spotify_url,
+                owned.unwrap_or(true),
+                wanted.unwrap_or(false),
             )
             .await?;
         Ok(record)
@@ -232,6 +238,8 @@ impl RecordUseCase for RecordUseCaseImpl {
                     cover_url: record.cover_image.clone(), // TODO: get cover image from spotify
                     discogs_url: Some(record.master_url.clone()),
                     spotify_url: None, // TODO: get spotify url
+                    owned: false,
+                    wanted: false,
                 }
             })
             .collect();
@@ -267,6 +275,8 @@ impl RecordUseCase for RecordUseCaseImpl {
                     cover_url: spotify_record.images[0].url.clone(),
                     discogs_url: record.discogs_url.clone(),
                     spotify_url: Some(spotify_record.external_urls.spotify.clone()),
+                    owned: false,
+                    wanted: false,
                 }
             })
             .collect();

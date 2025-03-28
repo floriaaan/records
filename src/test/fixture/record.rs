@@ -12,6 +12,8 @@ pub fn record_fixture(id: usize) -> Record {
         discogs_url: Some(format!("discogs_url{}", id)),
         spotify_url: Some(format!("spotify_url{}", id)),
         user_id: 1,
+        owned: true,
+        wanted: false,
     }
 }
 

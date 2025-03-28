@@ -38,12 +38,16 @@ pub trait RecordRepo: Send + Sync {
         &self,
         con: &mut PgConnection,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Vec<Record>, DbRepoError>;
     // async fn update(&self, con: &mut PgConnection, id: i32, name: &String) -> Result<Record, DbRepoError>;
     async fn get_random_by_user_id(
         &self,
         con: &mut PgConnection,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Option<Record>, DbRepoError>;
 
     async fn delete(&self, con: &mut PgConnection, id: i32) -> Result<(), DbRepoError>;
@@ -112,8 +116,19 @@ impl RecordRepo for RecordRepoImpl {
         &self,
         con: &mut PgConnection,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Vec<Record>, DbRepoError> {
-        let records = query_as!(Record, "SELECT * FROM records WHERE user_id = $1", user_id)
+        let mut query = String::from("SELECT * FROM records WHERE user_id = $1");
+        if let Some(owned) = owned {
+            query.push_str(format!(" AND owned = {}", owned).as_str());
+        }
+        if let Some(wanted) = wanted {
+            query.push_str(format!(" AND wanted = {}", wanted).as_str());
+        }
+
+        let records = query_as::<_, Record>(&query)
+            .bind(user_id)
             .fetch_all(&mut *con)
             .await
             .map_err(|e| log_into!(e, DbRepoError))?;
@@ -155,15 +170,23 @@ impl RecordRepo for RecordRepoImpl {
         &self,
         con: &mut PgConnection,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Option<Record>, DbRepoError> {
-        query_as!(
-            Record,
-            "SELECT * FROM records WHERE user_id = $1 ORDER BY RANDOM() LIMIT 1",
-            user_id
-        )
-        .fetch_optional(&mut *con)
-        .await
-        .map_err(|e| log_into!(e, DbRepoError))
+        let mut query = String::from("SELECT * FROM records WHERE user_id = $1");
+        if let Some(owned) = owned {
+            query.push_str(format!(" AND owned = {}", owned).as_str());
+        }
+        if let Some(wanted) = wanted {
+            query.push_str(format!(" AND wanted = {}", wanted).as_str());
+        }
+        query.push_str(" ORDER BY RANDOM() LIMIT 1");
+
+        query_as::<_, Record>(&query)
+            .bind(user_id)
+            .fetch_optional(&mut *con)
+            .await
+            .map_err(|e| log_into!(e, DbRepoError))
     }
 
     #[instrument(name = "record_repo/delete", skip_all, fields(id = %id))]

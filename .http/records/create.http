@@ -23,7 +23,9 @@ Authorization: Bearer {{authToken}}
 #     "release_date": "2001-03-12",
 #     "cover_url": "https://upload.wikimedia.org/wikipedia/en/a/a7/Daft_Punk_-_Discovery.jpg",
 #     "discogs_url": "https://www.discogs.com/fr/Daft-Punk-Discovery/master/10367",
-#     "spotify_url": "https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc"
+#     "spotify_url": "https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc",
+#     "owned": true,
+#     "wanted": false,
 # }
 
 {
@@ -32,6 +34,8 @@ Authorization: Bearer {{authToken}}
     "release_date": "2020-03-20",
     "cover_url": "https://upload.wikimedia.org/wikipedia/en/8/8e/The_Weeknd_-_After_Hours.png",
     "discogs_url": "https://www.discogs.com/fr/The-Weeknd-After-Hours/master/1698927",
-    "spotify_url": "https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj"
+    "spotify_url": "https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj",
+    "owned": false,
+    "wanted": true
 }
 

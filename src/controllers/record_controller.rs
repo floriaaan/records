@@ -9,12 +9,14 @@ use rocket::serde::json::Json;
 use tracing::instrument;
 use validator::Validate;
 
-#[get("/")]
+#[get("/?<owned>&<wanted>")]
 #[instrument(name = "record_controller/index", skip_all)]
 async fn index(
     app: &AppState,
     mut db: ConnectionDb,
     jwt_claim: Result<JwtClaim, NetworkResponse>,
+    owned: Option<bool>,
+    wanted: Option<bool>,
 ) -> Result<Json<Vec<Record>>, AppError> {
     let user_id = jwt_claim
         .map_err(|_| AppError::Unauthorized)
@@ -24,7 +26,7 @@ async fn index(
     let records = app
         .use_cases
         .record
-        .find_all_by_user_id(&app.repos, &mut db, user_id)
+        .find_all_by_user_id(&app.repos, &mut db, user_id, owned, wanted)
         .await?;
     Ok(Json(records))
 }
@@ -109,12 +111,14 @@ async fn get(
     Ok(Json(record))
 }
 
-#[get("/random")]
+#[get("/random?<owned>&<wanted>")]
 #[instrument(name = "record_controller/random", skip_all)]
 async fn random(
     app: &AppState,
     mut db: ConnectionDb,
     jwt_claim: Result<JwtClaim, NetworkResponse>,
+    owned: Option<bool>,
+    wanted: Option<bool>,
 ) -> Result<Json<Option<Record>>, AppError> {
     let user_id = jwt_claim
         .map_err(|_| AppError::Unauthorized)
@@ -124,7 +128,7 @@ async fn random(
     let record = app
         .use_cases
         .record
-        .get_random_by_user_id(&app.repos, &mut db, user_id)
+        .get_random_by_user_id(&app.repos, &mut db, user_id, owned, wanted)
         .await?;
     Ok(Json(record))
 }

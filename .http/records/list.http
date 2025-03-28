@@ -13,7 +13,7 @@ Content-Type: application/json
 @authToken = {{tokenAPI.response.body.token}}
 
 
-GET {{baseUrl}}/records/
+GET {{baseUrl}}/records?owned
 content-type: application/json
 Authorization: Bearer {{authToken}}
 

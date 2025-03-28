@@ -47,12 +47,16 @@ pub trait RecordUseCase: Send + Sync {
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Vec<Record>, AppError>;
     async fn get_random_by_user_id(
         &self,
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Option<Record>, AppError>;
 
     async fn search(&self, query: &String) -> Result<Vec<Record>, AppError>;
@@ -105,10 +109,12 @@ impl RecordUseCase for RecordUseCaseImpl {
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Vec<Record>, AppError> {
         let records = repos
             .record
-            .find_all_by_user_id(&mut *db_con, user_id)
+            .find_all_by_user_id(&mut *db_con, user_id, owned, wanted)
             .await?;
         Ok(records)
     }
@@ -119,10 +125,12 @@ impl RecordUseCase for RecordUseCaseImpl {
         repos: &Repos,
         db_con: &mut DbCon,
         user_id: i32,
+        owned: Option<bool>,
+        wanted: Option<bool>,
     ) -> Result<Option<Record>, AppError> {
         let record = repos
             .record
-            .get_random_by_user_id(&mut *db_con, user_id)
+            .get_random_by_user_id(&mut *db_con, user_id, owned, wanted)
             .await?;
         Ok(record)
     }

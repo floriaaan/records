@@ -1,5 +1,5 @@
 use crate::db::ConnectionDb;
-use crate::dto::user_dto::UserInput;
+use crate::dto::user_dto::{UserLoginInput, UserRegisterInput};
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::JwtClaim;
 use crate::utils::NetworkResponse;
@@ -13,23 +13,13 @@ use validator::Validate;
 async fn log_in(
     app: &AppState,
     mut db: ConnectionDb,
-    body: Json<UserInput>,
+    body: Json<UserLoginInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
 
     match body.validate() {
         Ok(_) => {}
-        Err(e) => {
-            let errors = e
-                .field_errors()
-                .iter()
-                .map(|(k, v)| format!("{}: {:?}", k, v))
-                .collect::<Vec<String>>()
-                .join(", ");
-            return Err(AppError::ValidationError {
-                message: errors,
-            });
-        }
+        Err(e) => return Err(AppError::ValidationError { errors: e }),
     }
 
     let jwt = app
@@ -46,24 +36,13 @@ async fn log_in(
 async fn register(
     app: &AppState,
     mut db: ConnectionDb,
-    body: Json<UserInput>,
+    body: Json<UserRegisterInput>,
 ) -> Result<Json<Jwt>, AppError> {
     let body = body.into_inner();
 
     match body.validate() {
         Ok(_) => {}
-        Err(e) => {
-            let errors = e
-                .field_errors()
-                .iter()
-                .map(|(k, v)| format!("{}: {:?}", k, v))
-                .collect::<Vec<String>>()
-                .join(", ");
-            
-            return Err(AppError::ValidationError {
-                message: errors,
-            });
-        }
+        Err(e) => return Err(AppError::ValidationError { errors: e }),
     }
 
     let jwt = app

@@ -1,3 +1,4 @@
+use crate::dto::record_dto::RecordInput;
 use crate::models::record_model::Record;
 use crate::repositories::error::DbRepoError;
 use crate::repositories::record_repo::{RecordRepo, RecordRepoImpl};
@@ -12,18 +13,25 @@ pub async fn create_record(db_con: &mut PgConnection) -> Result<Record, DbRepoEr
     let cover_url = "cover_url".to_string();
     let discogs_url = Some("discogs_url".to_string());
     let spotify_url = Some("spotify_url".to_string());
+    let owned = true;
+    let wanted = false;
+
     let user_id = 1;
 
     record_repo
         .create(
             &mut *db_con,
             user_id,
-            &title,
-            &artist,
-            &release_date,
-            &cover_url,
-            discogs_url,
-            spotify_url,
+            RecordInput {
+                title,
+                artist,
+                release_date,
+                cover_url,
+                discogs_url,
+                spotify_url,
+                owned: Some(owned),
+                wanted: Some(wanted),
+            }
         )
         .await
 }

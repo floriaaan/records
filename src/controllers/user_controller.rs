@@ -1,6 +1,6 @@
 use crate::app::AppState;
 use crate::db::ConnectionDb;
-use crate::dto::user_dto::{UserEmail, UserInput};
+use crate::dto::user_dto::UserUpdateInput;
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::JwtClaim;
 use crate::models::user_model::User;
@@ -15,31 +15,13 @@ async fn index(app: &AppState, mut db: ConnectionDb) -> Result<Json<Vec<User>>, 
     Ok(Json(users))
 }
 
-#[post("/", data = "<body>")]
-#[instrument(name = "user_controller/add", skip_all)]
-async fn create(
-    app: &AppState,
-    mut db: ConnectionDb,
-    body: Json<UserInput>,
-) -> Result<Json<User>, AppError> {
-    let body = body.into_inner();
-    let email = body.email;
-    let password = body.password;
-    let user = app
-        .use_cases
-        .user
-        .create(&app.repos, &mut db, &email, &password)
-        .await?;
-    Ok(Json(user))
-}
-
 #[put("/", data = "<body>")]
 #[instrument(name = "user_controller/update", skip_all)]
 async fn update(
     app: &AppState,
     mut db: ConnectionDb,
     jwt_claim: Result<JwtClaim, NetworkResponse>,
-    body: Json<UserEmail>,
+    body: Json<UserUpdateInput>,
 ) -> Result<Json<User>, AppError> {
     let user_id = jwt_claim
         .map_err(|_| AppError::Unauthorized)
@@ -75,7 +57,7 @@ async fn delete(
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, create, update, delete]
+    routes![index, update, delete]
 }
 
 #[cfg(test)]

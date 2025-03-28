@@ -42,8 +42,9 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            floriaaan/records:${{ env.TAG_NAME }}-linux-amd64
-            floriaaan/records:${{ github.sha }}-linux-amd64
+            floriaaan/records:${{ env.TAG_NAME }}
+            floriaaan/records:latest
+            floriaaan/records:${{ github.sha }}
 
 
   # build-macos:

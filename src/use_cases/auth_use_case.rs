@@ -1,6 +1,5 @@
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::Jwt;
-use crate::repositories::error::DbRepoError;
 use crate::repositories::repositories::Repositories;
 use crate::{db::DbCon, models::jwt_model::generate_jwt};
 use bcrypt::{hash, verify};

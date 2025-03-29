@@ -22,7 +22,7 @@ pub struct RecordDB {
 }
 
 /// Record is the complete model including tags
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Record {
     pub id: i32,
     

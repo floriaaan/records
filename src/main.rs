@@ -5,6 +5,7 @@ pub mod app;
 pub mod config;
 pub mod db;
 pub mod utils;
+pub mod templating;
 
 mod error {
     pub mod app_error;
@@ -53,6 +54,11 @@ use rocket_db_pools::Database;
 async fn rocket() -> _ {
     dotenv().ok();
     tracing_subscriber::fmt::init();
+    
+    // Initialize templates
+    if let Err(err) = templating::init_templates() {
+        tracing::error!("Failed to initialize templates: {}", err);
+    }
 
     rocket::build()
         .attach(Db::init())

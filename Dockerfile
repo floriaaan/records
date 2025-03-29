@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev build-essential
 COPY Cargo.toml Cargo.lock ./
 COPY src src
 COPY sqlx-data.json sqlx-data.json
+COPY templates templates
 
 # Fetch dependencies
 RUN cargo fetch

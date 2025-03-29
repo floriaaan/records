@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM records WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "artist",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "cover_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "discogs_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "spotify_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "owned",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "wanted",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0af2460d0a3a80171e2248a917e35f47fb50b987392ed0682c59718fbd47ffcf"
+}

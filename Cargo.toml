@@ -1,33 +1,38 @@
 [package]
 name = "records"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lints.rust]
-private_in_public = "allow"
-unused_imports = "allow"
-dead_code = "allow"
-
 [dependencies]
-rocket = { version = "=0.5.0-rc.3", features = ["secrets", "json"] }
-rocket_db_pools = { version = "=0.1.0-rc.3", features = ["sqlx_postgres", "deadpool_redis"] }
+rocket = { version = "=0.5.1", features = ["secrets", "json"] }
+rocket_db_pools = { version = "=0.2.0", features = [
+    "sqlx_postgres",
+    "deadpool_redis",
+] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0"
 dotenv = "0.15.0"
-uuid = { version = "1.4.1", features = ["v4", "fast-rng", "serde"] }
-tokio = {version = "1.44.1", features = ["full"]}
+uuid = { version = "1.16.0", features = ["v4", "fast-rng", "serde"] }
+tokio = { version = "1.44.1", features = ["full"] }
 tokio-util = { version = "0.7.14", features = ["io"] }
 async-trait = "0.1.88"
-sqlx = { version = "0.6", default-features = false, features = ["macros", "offline", "migrate", "uuid", "chrono", "json"] }
-chrono = {version = "0.4", features = ["serde"]}
+sqlx = { version = "0.7", default-features = false, features = [
+    "macros",
+    "migrate",
+    "uuid",
+    "chrono",
+    "json",
+    "postgres",
+    "runtime-async-std-rustls"
+] }
+chrono = { version = "0.4", features = ["serde"] }
 mockall = "0.13.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 thiserror = "2.0.12"
 bcrypt = "0.17.0"
 jsonwebtoken = "9"
-reqwest = { version = "0.12.14", features = ["json"]}
+reqwest = { version = "0.12.15", features = ["json"] }
 validator = { version = "0.20.0", features = ["derive"] }
 zxcvbn = "3.1.0"
+handlebars = "5.1.0"

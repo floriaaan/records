@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev build-essential
 # Copy dependencies first to leverage Docker cache
 COPY Cargo.toml Cargo.lock ./
 COPY src src
-COPY sqlx-data.json sqlx-data.json
+COPY .sqlx .sqlx
+COPY templates templates
 
 # Fetch dependencies
 RUN cargo fetch

@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:8000
+@token = collection-token
+
+
+
+### Get a collection in JSON format
+# Replace {token} with an actual token from the list tokens response
+# @name getCollectionJson
+GET {{baseUrl}}/records/collection/{{token}}
+
+### Get owned records from a collection
+# Replace {token} with an actual token from the list tokens response
+GET {{baseUrl}}/records/collection/{{token}}?owned=true
+
+### Get wanted records from a collection
+# Replace {token} with an actual token from the list tokens response
+GET {{baseUrl}}/records/collection/{{token}}?wanted=true

@@ -1,0 +1,18 @@
+@baseUrl = http://localhost:8000
+@token = collection-token
+
+
+### Get a collection in HTML format
+# Replace {token} with an actual token from the list tokens response
+# @name getCollectionHtml
+GET {{baseUrl}}/records/collection/{{token}}?format=html
+
+
+### Get owned records from a collection in HTML format
+# Replace {token} with an actual token from the list tokens response
+GET {{baseUrl}}/records/collection/{{token}}?owned=true&format=html
+
+
+### Get wanted records from a collection in HTML format
+# Replace {token} with an actual token from the list tokens response
+GET {{baseUrl}}/records/collection/{{token}}?wanted=true&format=html

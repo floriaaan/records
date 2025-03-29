@@ -27,12 +27,14 @@ mod repositories {
     pub mod record_repo;
     pub mod repositories;
     pub mod user_repo;
+    pub mod tag_repo;
 }
 
 mod models {
     pub mod record_model;
     pub mod user_model;
     pub mod jwt_model;
+    pub mod tag_model;
 }
 
 mod dto {

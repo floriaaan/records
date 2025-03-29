@@ -74,7 +74,7 @@ impl RecordUseCase for RecordUseCaseImpl {
         user_id: i32,
         record: RecordInput,
     ) -> Result<Record, AppError> {
-        let created_record = repos.record.create(&mut *db_con, user_id, record).await?;
+                let created_record = repos.record.create(&mut *db_con, user_id, record).await?;
         Ok(created_record)
     }
 
@@ -241,6 +241,7 @@ impl RecordUseCase for RecordUseCaseImpl {
                     spotify_url: None, // TODO: get spotify url
                     owned: false,
                     wanted: false,
+                    tags: Some(Vec::new()),
                 }
             })
             .collect();
@@ -278,6 +279,7 @@ impl RecordUseCase for RecordUseCaseImpl {
                     spotify_url: Some(spotify_record.external_urls.spotify.clone()),
                     owned: false,
                     wanted: false,
+                    tags: Some(Vec::new()),
                 }
             })
             .collect();

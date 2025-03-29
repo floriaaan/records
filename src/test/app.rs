@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::repositories::{
-    record_repo::MockRecordRepo, repositories::Repos, user_repo::MockUserRepo,
+    record_repo::MockRecordRepo, repositories::Repos, user_repo::MockUserRepo, tag_repo::MockTagRepo,
 };
 use crate::use_cases::{
     record_use_case::MockRecordUseCase, use_cases::UseCases, user_use_case::MockUserUseCase,
@@ -16,7 +16,8 @@ pub fn create_app_for_test() -> App {
 pub fn create_repos_for_test() -> Repos {
     let user = Box::new(MockUserRepo::new());
     let record = Box::new(MockRecordRepo::new());
-    Repos { user, record }
+    let tag = Box::new(MockTagRepo::new());
+    Repos { user, record, tag }
 }
 
 pub fn create_use_cases_for_test() -> UseCases {

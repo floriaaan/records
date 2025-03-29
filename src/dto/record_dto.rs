@@ -27,4 +27,7 @@ pub struct RecordInput {
     pub owned: Option<bool>,
 
     pub wanted: Option<bool>,
+
+    /// Tags associated with this record (tag names)
+    pub tags: Option<Vec<String>>,
 }

@@ -1,7 +1,6 @@
 use crate::error::app_error::AppError;
 use crate::models::jwt_model::Jwt;
-use crate::repositories::error::DbRepoError;
-use crate::repositories::repositories::Repos;
+use crate::repositories::repositories::Repositories;
 use crate::{db::DbCon, models::jwt_model::generate_jwt};
 use bcrypt::{hash, verify};
 use mockall::automock;
@@ -19,14 +18,14 @@ impl AuthUseCaseImpl {
 pub trait AuthUseCase: Send + Sync {
     async fn log_in(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,
     ) -> Result<Jwt, AppError>;
     async fn register(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,
@@ -38,7 +37,7 @@ impl AuthUseCase for AuthUseCaseImpl {
     #[instrument(name = "auth_use_case/register", skip_all)]
     async fn register(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,
@@ -63,7 +62,7 @@ impl AuthUseCase for AuthUseCaseImpl {
     #[instrument(name = "auth_use_case/log_in", skip_all)]
     async fn log_in(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,

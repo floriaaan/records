@@ -26,3 +26,19 @@ pub enum ResponseBody {
 pub struct Response {
     pub body: ResponseBody,
 }
+
+// Define a custom Either type to handle different response types
+pub enum Either<L, R> {
+    Left(L),
+    Right(R),
+}
+
+// Implement Responder for Either
+impl<'r, L: rocket::response::Responder<'r, 'static>, R: rocket::response::Responder<'r, 'static>> rocket::response::Responder<'r, 'static> for Either<L, R> {
+    fn respond_to(self, req: &'r rocket::Request<'_>) -> rocket::response::Result<'static> {
+        match self {
+            Either::Left(left) => left.respond_to(req),
+            Either::Right(right) => right.respond_to(req),
+        }
+    }
+}

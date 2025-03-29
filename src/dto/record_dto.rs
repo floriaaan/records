@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Deserialize, Serialize, FromForm, Debug, Validate)]
 pub struct RecordInput {
@@ -27,4 +27,7 @@ pub struct RecordInput {
     pub owned: Option<bool>,
 
     pub wanted: Option<bool>,
+
+    /// Tags associated with this record (tag names)
+    pub tags: Option<Vec<String>>,
 }

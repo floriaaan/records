@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:8000
+@jwt = {{login.response.body.token}}
+
+### Login to get JWT token for authentication
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### Create a collection token
+POST {{baseUrl}}/records/collection/tokens
+Content-Type: application/json
+Authorization: {{jwt}}
+
+### List all collection tokens
+GET {{baseUrl}}/records/collection/tokens
+Authorization: {{jwt}}
+
+### Delete a collection token
+# Replace {id} with an actual token id
+DELETE {{baseUrl}}/records/collection/tokens/{id}
+Authorization: {{jwt}}
+
+### Get a collection in JSON format
+# Replace {token} with an actual token from the list response
+GET {{baseUrl}}/records/collection/{token}
+
+### Get a collection in HTML format
+# Replace {token} with an actual token from the list response
+GET {{baseUrl}}/records/collection/{token}?format=html
+
+### Get owned records from a collection
+# Replace {token} with an actual token from the list response
+GET {{baseUrl}}/records/collection/{token}?owned=true
+
+### Get wanted records from a collection
+# Replace {token} with an actual token from the list response
+GET {{baseUrl}}/records/collection/{token}?wanted=true
+
+### Get owned records from a collection in HTML format
+# Replace {token} with an actual token from the list response
+GET {{baseUrl}}/records/collection/{token}?owned=true&format=html

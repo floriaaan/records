@@ -93,7 +93,7 @@ impl RecordRepo for RecordRepoImpl {
         .map_err(|e| log_into!(e, DbRepoError))?;
 
         // Convert RecordDB to Record
-        let mut record = Record::from(record_db);
+        let record = Record::from(record_db);
         let mut tags = Vec::<Tag>::new();
 
         if let Some(tag_names) = record_input.tags {

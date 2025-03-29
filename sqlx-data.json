@@ -168,6 +168,88 @@
     },
     "query": "SELECT * FROM records WHERE id = $1"
   },
+  "0c052fb5ae86fc405e3dcc3b606988e980392ba6bfa01885a4c94708d0c1126d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM tags WHERE slug = $1"
+  },
+  "1ceb1ac2ee30254bfb6363dfbec90207e9b369e714808eb6da0d5a41a9825248": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM records_tags WHERE record_id = $1"
+  },
+  "204e7decd50fddc2668344e86e3906a29efb246d1fec8cb7e768d4eeed79cb92": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "token",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM collection_tokens WHERE token = $1"
+  },
   "26e7e05427bc7dabcd7815d27764fda2baf4cfe60a2d2d6ee2a1f773dccbbce2": {
     "describe": {
       "columns": [
@@ -203,6 +285,50 @@
       }
     },
     "query": "SELECT * FROM users"
+  },
+  "33e7d629af8116b1d45d358aa12a9ce956e3f8a32cc5d561edfd7cdbbacc638e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM tags WHERE id = $1"
+  },
+  "3af3f6d2f20fc8546cacd10dd75c37e8b6b4771d7fe6124f1929c23c8112112d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM collection_tokens WHERE id = $1"
   },
   "3e320f021f38b70d25f6787678a69cab5446ae92e65af1e7f75bec6c8de39955": {
     "describe": {
@@ -254,6 +380,108 @@
       }
     },
     "query": "DELETE FROM users WHERE id = $1"
+  },
+  "51e512818863311eb18546ab22b7e88faee5587d2da80cc61bbb0c7740638ccd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "token",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamp"
+        ]
+      }
+    },
+    "query": "INSERT INTO collection_tokens (token, user_id, created_at) VALUES ($1, $2, $3) RETURNING *"
+  },
+  "52958684fa52b7a4753cd4356482dc6c655102a501d8aa48e03b1fb3dbbad02d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM tags"
+  },
+  "5df0c5e9860bc1c5c7f69116dd25ce388c723df37d37072110230f48a92daed6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT t.* FROM tags t \n             JOIN records_tags rt ON rt.tag_id = t.id\n             WHERE rt.record_id = $1"
   },
   "843923b9a0257cf80f1dff554e7dc8fdfc05f489328e8376513124dfb42996e3": {
     "describe": {
@@ -332,6 +560,51 @@
     },
     "query": "UPDATE users SET email = $1 WHERE id = $2 RETURNING *"
   },
+  "a72001866b00fc7dc9b7980e86a43d67227e305ac8ada3c3bbb212593d2b1bcf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO tags (name, slug) VALUES ($1, $2) RETURNING *"
+  },
+  "ab4ae0c78cde260949e7ed7b3f232c1fb3e7e565eada154789c7edc1102693fb": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM collection_tokens WHERE user_id = $1"
+  },
   "ce9f77a4f19b808b0f9b3075425f7058dcb11a7bf98ca0acd586e7be366ebed0": {
     "describe": {
       "columns": [
@@ -403,6 +676,44 @@
       }
     },
     "query": "SELECT * FROM records"
+  },
+  "f02e561e3fe67532c55ec21d79adcf4d5c57fbbf28dd677ea03b187304545b2a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "token",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM collection_tokens WHERE user_id = $1"
   },
   "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f": {
     "describe": {

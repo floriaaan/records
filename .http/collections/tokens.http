@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:8000
+
+
+### Login to get JWT token for authentication
+# @name login
+POST {{baseUrl}}/auth/login
+content-type: application/json
+
+{
+  "email": "user@mail.com",
+  "password": "This;Is,a@Str0ngPassword=="
+}
+###
+
+@jwt = {{login.response.body.token}}
+
+### Create a collection token
+# @name createToken
+POST {{baseUrl}}/records/collection/tokens
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+### Get collection token for user
+# @name listTokens
+GET {{baseUrl}}/records/collection/tokens
+Authorization: Bearer {{jwt}}
+
+### Delete a collection token
+# Replace {id} with an actual token id
+# @name deleteToken
+# @prompt id
+DELETE {{baseUrl}}/records/collection/tokens/{{id}}
+Authorization: Bearer {{jwt}}

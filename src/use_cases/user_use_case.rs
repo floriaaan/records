@@ -2,7 +2,7 @@ use crate::db::DbCon;
 use crate::error::app_error::AppError;
 use crate::models::user_model::User;
 use crate::repositories::error::DbRepoError;
-use crate::repositories::repositories::Repos;
+use crate::repositories::repositories::Repositories;
 use mockall::automock;
 use tracing::instrument;
 
@@ -18,20 +18,20 @@ impl UserUseCaseImpl {
 pub trait UserUseCase: Send + Sync {
     async fn create (
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,
     ) -> Result<User, AppError>;
-    async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<User>, AppError>;
+    async fn find_all(&self, repos: &Repositories, db_con: &mut DbCon) -> Result<Vec<User>, AppError>;
     async fn update(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         id: i32,
         name: &String,
     ) -> Result<User, AppError>;
-    async fn delete(&self, repos: &Repos, db_con: &mut DbCon, id: i32) -> Result<(), AppError>;
+    async fn delete(&self, repos: &Repositories, db_con: &mut DbCon, id: i32) -> Result<(), AppError>;
 }
 
 #[async_trait]
@@ -39,7 +39,7 @@ impl UserUseCase for UserUseCaseImpl {
     #[instrument(name = "user_use_case/create", skip_all)]
     async fn create(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
         password: &String,
@@ -52,7 +52,7 @@ impl UserUseCase for UserUseCaseImpl {
     }
 
     #[instrument(name = "user_use_case/find_all", skip_all)]
-    async fn find_all(&self, repos: &Repos, db_con: &mut DbCon) -> Result<Vec<User>, AppError> {
+    async fn find_all(&self, repos: &Repositories, db_con: &mut DbCon) -> Result<Vec<User>, AppError> {
         repos
             .user
             .find_all(&mut *db_con)
@@ -65,7 +65,7 @@ impl UserUseCase for UserUseCaseImpl {
     #[instrument(name = "user_use_case/update", skip_all, fields(id = %id))]
     async fn update(
         &self,
-        repos: &Repos,
+        repos: &Repositories,
         db_con: &mut DbCon,
         id: i32,
         name: &String,
@@ -83,7 +83,7 @@ impl UserUseCase for UserUseCaseImpl {
     }
 
     #[instrument(name = "user_use_case/delete", skip_all, fields(id = %id))]
-    async fn delete(&self, repos: &Repos, db_con: &mut DbCon, id: i32) -> Result<(), AppError> {
+    async fn delete(&self, repos: &Repositories, db_con: &mut DbCon, id: i32) -> Result<(), AppError> {
         repos
             .user
             .delete(&mut *db_con, id)

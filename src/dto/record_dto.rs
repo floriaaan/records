@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Deserialize, Serialize, FromForm, Debug, Validate)]
 pub struct RecordInput {

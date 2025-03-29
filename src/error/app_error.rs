@@ -1,5 +1,3 @@
-use std::any::{self, Any};
-
 use crate::repositories::error::DbRepoError;
 use rocket::http::{ContentType, Status};
 use rocket::response::{Responder, Response};
@@ -96,6 +94,7 @@ impl<'r> Responder<'r, 'static> for AppError {
     }
 }
 
+#[allow(dead_code)]
 pub trait AppErr<T, E> {
     fn app_err(self, status_code: u16, message: &str) -> Result<T, AppError>;
 }

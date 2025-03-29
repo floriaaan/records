@@ -1,0 +1,2 @@
+[build]
+rustflags = ["-A", "renamed_and_removed_lints"]

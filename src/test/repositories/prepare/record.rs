@@ -31,7 +31,8 @@ pub async fn create_record(db_con: &mut PgConnection) -> Result<Record, DbRepoEr
                 spotify_url,
                 owned: Some(owned),
                 wanted: Some(wanted),
-            }
+                tags: Some(vec!["tag1".to_string(), "tag2".to_string()]),
+            },
         )
         .await
 }

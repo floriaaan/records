@@ -1,5 +1,5 @@
 ###
-# @prompt name Your name
+# @prompt username Your username
 # @prompt email Your email
 # @prompt password Your password
 
@@ -7,7 +7,8 @@ POST http://localhost:8000/users
 content-type: application/json
 
 {
-  "name": "{{name}}",
+  "username": "{{username}}",
   "email": "{{email}}",
-  "password": "{{password}}"
+  "password": "{{password}}",
+  "password_confirmation": "{{password}}"
 }

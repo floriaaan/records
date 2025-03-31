@@ -7,7 +7,7 @@ use crate::models::record_model::Record;
 use crate::templating;
 use crate::utils::Either;
 use crate::utils::NetworkResponse;
-use rocket::{get, post, delete, http::Status, response::content::RawHtml, serde::json::Json};
+use rocket::{delete, get, http::Status, post, response::content::RawHtml, serde::json::Json};
 use serde::Serialize;
 use tracing::instrument;
 
@@ -80,7 +80,7 @@ async fn delete_token(
 // Define collection view template data structure
 #[derive(Serialize)]
 struct CollectionViewData {
-    user_id: String,
+    user_name: String,
     records: Vec<Record>,
     records_count: usize,
 }
@@ -111,9 +111,14 @@ async fn get_collection(
                 .get_user_id_by_token(&app.repos, &mut db, &token)
                 .await?;
 
+            let user = match app.repos.user.find_by_id(&mut *db, user_id).await? {
+                Some(user) => user,
+                None => return Err(AppError::NotFound),
+            };
+
             // Create data for the template
             let data = CollectionViewData {
-                user_id: user_id.to_string(),
+                user_name: user.username,
                 records_count: records.len(),
                 records: records.clone(),
             };

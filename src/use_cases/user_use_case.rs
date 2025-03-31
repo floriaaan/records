@@ -21,6 +21,7 @@ pub trait UserUseCase: Send + Sync {
         repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<User, AppError>;
     async fn find_all(&self, repos: &Repositories, db_con: &mut DbCon) -> Result<Vec<User>, AppError>;
@@ -29,7 +30,8 @@ pub trait UserUseCase: Send + Sync {
         repos: &Repositories,
         db_con: &mut DbCon,
         id: i32,
-        name: &String,
+        email: &String,
+        username: &String,
     ) -> Result<User, AppError>;
     async fn delete(&self, repos: &Repositories, db_con: &mut DbCon, id: i32) -> Result<(), AppError>;
 }
@@ -42,11 +44,12 @@ impl UserUseCase for UserUseCaseImpl {
         repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<User, AppError> {
         repos
             .user
-            .create(&mut *db_con, email, password)
+            .create(&mut *db_con, email, username, password)
             .await
             .map_err(|e| AppError::from(e))
     }
@@ -60,17 +63,16 @@ impl UserUseCase for UserUseCaseImpl {
             .map_err(|e| AppError::from(e))
     }
 
-    
-
     #[instrument(name = "user_use_case/update", skip_all, fields(id = %id))]
     async fn update(
         &self,
         repos: &Repositories,
         db_con: &mut DbCon,
         id: i32,
-        name: &String,
+        email: &String,
+        username: &String,
     ) -> Result<User, AppError> {
-        match repos.user.update(&mut *db_con, id, name).await {
+        match repos.user.update(&mut *db_con, id, email, username).await {
             Ok(user) => Ok(user),
             Err(e) => match &e {
                 DbRepoError::SqlxError(sqlx_error) => match sqlx_error {

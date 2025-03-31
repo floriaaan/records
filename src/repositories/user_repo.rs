@@ -20,6 +20,7 @@ pub trait UserRepo: Send + Sync {
         &self,
         con: &mut PgConnection,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<User, DbRepoError>;
     async fn find_all(&self, con: &mut PgConnection) -> Result<Vec<User>, DbRepoError>;
@@ -33,11 +34,17 @@ pub trait UserRepo: Send + Sync {
         con: &mut PgConnection,
         email: &String,
     ) -> Result<Option<User>, DbRepoError>;
+    async fn find_by_username(
+        &self,
+        con: &mut PgConnection,
+        username: &String,
+    ) -> Result<Option<User>, DbRepoError>;
     async fn update(
         &self,
         con: &mut PgConnection,
         id: i32,
-        name: &String,
+        email: &String,
+        username: &String,
     ) -> Result<User, DbRepoError>;
     async fn delete(&self, con: &mut PgConnection, id: i32) -> Result<(), DbRepoError>;
 }
@@ -49,12 +56,14 @@ impl UserRepo for UserRepoImpl {
         &self,
         con: &mut PgConnection,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<User, DbRepoError> {
         query_as!(
             User,
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
+            "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
             email,
+            username,
             password
         )
         .fetch_one(&mut *con)
@@ -95,17 +104,31 @@ impl UserRepo for UserRepoImpl {
             .map_err(|e| log_into!(e, DbRepoError))
     }
 
+    #[instrument(name = "user_repo/find_by_username", skip_all, fields(username = %username))]
+    async fn find_by_username(
+        &self,
+        con: &mut PgConnection,
+        username: &String,
+    ) -> Result<Option<User>, DbRepoError> {
+        query_as!(User, "SELECT * FROM users WHERE username = $1", username)
+            .fetch_optional(&mut *con)
+            .await
+            .map_err(|e| log_into!(e, DbRepoError))
+    }
+
     #[instrument(name = "user_repo/update", skip_all, fields(id = %id))]
     async fn update(
         &self,
         con: &mut PgConnection,
         id: i32,
         email: &String,
+        username: &String,
     ) -> Result<User, DbRepoError> {
         query_as!(
             User,
-            "UPDATE users SET email = $1 WHERE id = $2 RETURNING *",
+            "UPDATE users SET email = $1, username = $2 WHERE id = $3 RETURNING *",
             email,
+            username,
             id
         )
         .fetch_one(&mut *con)
@@ -157,7 +180,7 @@ mod tests {
         let user = create_user(&mut tx).await.unwrap();
         let repo = UserRepoImpl::new();
         let new_email = "new_email@mail.com".to_string();
-        let result = repo.update(&mut tx, user.id, &new_email).await;
+        let result = repo.update(&mut tx, user.id, &new_email, &user.username).await;
         assert!(result.is_ok());
         tx.rollback().await.unwrap();
     }

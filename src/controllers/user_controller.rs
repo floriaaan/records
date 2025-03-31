@@ -28,11 +28,11 @@ async fn update(
         .map(|key| key.sub)
         .map_err(|_| AppError::Unauthorized)?;
 
-    let email = body.into_inner().email;
+    let input = body.into_inner();
     let user = app
         .use_cases
         .user
-        .update(&app.repos, &mut db, user_id, &email)
+        .update(&app.repos, &mut db, user_id, &input.email, &input.username)
         .await?;
     Ok(Json(user))
 }

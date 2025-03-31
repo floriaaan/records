@@ -48,7 +48,7 @@ async fn register(
     let jwt = app
         .use_cases
         .auth
-        .register(&app.repos, &mut db, &body.email, &body.password)
+        .register(&app.repos, &mut db, &body.email, &body.username, &body.password)
         .await?;
 
     Ok(Json(jwt))

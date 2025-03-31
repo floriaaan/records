@@ -178,9 +178,6 @@ impl CollectionUseCase for CollectionUseCaseImpl {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::test::db::create_db_con_for_test;
-    use sqlx::Connection;
 
     #[tokio::test]
     async fn test_create_token() {

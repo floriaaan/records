@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 
-use crate::models::record_model::Record;
+use crate::models::{record_model::Record, tag_model::TagResponse};
 
 pub fn record_fixture(id: usize) -> Record {
     Record {
@@ -14,6 +14,16 @@ pub fn record_fixture(id: usize) -> Record {
         user_id: 1,
         owned: true,
         wanted: false,
+        tags: Some(vec![
+            TagResponse {
+                name: format!("tag{}-1", id),
+                slug: format!("tag{}-1", id),
+            },
+            TagResponse {
+                name: format!("tag{}-2", id),
+                slug: format!("tag{}-2", id),
+            },
+        ]),
     }
 }
 

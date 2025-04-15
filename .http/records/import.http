@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:8000
+# Login
+# @name tokenAPI
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "user@mail.com",
+    "password": "This;Is,a@Str0ngPassword=="
+}
+###
+
+@authToken = {{tokenAPI.response.body.token}}
+
+// Import Discogs collection as CSV file
+// @name importCollection
+POST {{baseUrl}}/records/import
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer {{authToken}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="collection.csv"
+Content-Type: text/csv
+
+< {{$projectRoot}}/floriaaan-discogs_collection-20250412-1022.csv
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+// Get all records after import
+GET {{baseUrl}}/records/?owned=true
+Authorization: Bearer {{authToken}}

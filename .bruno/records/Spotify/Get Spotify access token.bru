@@ -1,0 +1,27 @@
+meta {
+  name: Get Spotify access token
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://accounts.spotify.com/api/token
+  body: form-urlencoded
+  auth: basic
+}
+
+auth:basic {
+  username: {{client_id}}
+  password: {{client_secret}}
+}
+
+body:form-urlencoded {
+  grant_type: refresh_token
+  refresh_token: {{refresh_token}}
+}
+
+vars {
+  client_id: {{$dotenv SPOTIFY_CLIENT_ID}}
+  client_secret: {{$dotenv SPOTIFY_CLIENT_SECRET}}
+  refresh_token: {{$dotenv SPOTIFY_REFRESH_TOKEN}}
+}

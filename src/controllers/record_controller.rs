@@ -8,6 +8,9 @@ use crate::utils::NetworkResponse;
 use rocket::serde::json::Json;
 use tracing::instrument;
 use validator::Validate;
+use rocket::data::{Data, ToByteUnit};
+use std::io::Cursor;
+use csv::ReaderBuilder;
 
 #[get("/?<owned>&<wanted>")]
 #[instrument(name = "record_controller/index", skip_all)]
@@ -57,19 +60,149 @@ async fn add(
         .create_multiple(&app.repos, &mut db, user_id, inputs)
         .await?;
 
+    Ok(Json(created_records))
+}
 
-    // for record_input in inputs {
-    //     record_input
-    //         .validate()
-    //         .map_err(|e| AppError::ValidationError { errors: e })?;
+#[post("/import", data = "<data>")]
+#[instrument(name = "record_controller/import", skip_all)]
+async fn import(
+    app: &AppState,
+    mut db: ConnectionDb,
+    data: Data<'_>,
+    jwt_claim: Result<JwtClaim, NetworkResponse>,
+) -> Result<Json<Vec<Record>>, AppError> {
+    let user_id = jwt_claim
+        .map_err(|_| AppError::Unauthorized)
+        .map(|key| key.sub)
+        .map_err(|_| AppError::Unauthorized)?;
 
-    //     let record = app
-    //         .use_cases
-    //         .record
-    //         .create(&app.repos, &mut db, user_id, record_input)
-    //         .await?;
-    //     created_records.push(record);
-    // }
+    // Read data with a size limit of 5MB
+    let bytes = match data.open(5.mebibytes()).into_bytes().await {
+        Ok(bytes) => bytes,
+        Err(e) => return Err(AppError::new(500, &format!("Failed to read file: {}", e))),
+    };
+    
+    if !bytes.is_complete() {
+        return Err(AppError::new(413, "File too large (max 5MB)"));
+    }
+
+    // Convert bytes to string
+    let string_data = match std::str::from_utf8(&bytes.value) {
+        Ok(v) => v,
+        Err(_) => return Err(AppError::new(400, "Invalid UTF-8 sequence")),
+    };
+
+    // Parse CSV
+    let mut reader = ReaderBuilder::new()
+        .has_headers(true)
+        .from_reader(Cursor::new(string_data));
+
+    // Transform CSV records into RecordInput objects
+    let mut record_inputs = Vec::new();
+    let mut import_errors = Vec::new();
+    
+    // Track the current row for error reporting
+    let mut row_index = 0;
+    
+    for result in reader.records() {
+        row_index += 1;
+        
+        let record = match result {
+            Ok(record) => record,
+            Err(e) => {
+                import_errors.push(format!("Row {}: Error reading CSV record: {}", row_index, e));
+                continue;
+            }
+        };
+
+        // Skip header row if present
+        if record.get(0) == Some("Catalog#") {
+            continue;
+        }
+
+        if record.len() < 7 {
+            tracing::warn!("Row {}: Not enough fields (found {}, expected at least 7): {:?}", 
+                row_index, record.len(), record);
+            import_errors.push(format!("Row {}: Not enough fields (found {}, expected at least 7)", 
+                row_index, record.len()));
+            continue;
+        }
+
+        let artist = record.get(1).unwrap_or_default().trim();
+        let title = record.get(2).unwrap_or_default().trim();
+        let label = record.get(3).unwrap_or_default().trim();
+        let release_year = record.get(6).unwrap_or_default().trim();
+        let release_id = record.get(7).unwrap_or_default().trim();
+
+        // Default coverUrl - could be updated with a real cover URL from an API call
+        let cover_url = format!("https://via.placeholder.com/300x300?text={}",
+            urlencoding::encode(&format!("{} - {}", artist, title)));
+
+        // Format release date as YYYY-01-01 (using January 1st as default day/month)
+        let release_date = if !release_year.is_empty() {
+            format!("{}-01-01", release_year)
+        } else {
+            "2000-01-01".to_string() // Default date if not provided
+        };
+
+        // Create a discogs URL if release_id is available
+        let discogs_url = if !release_id.is_empty() {
+            Some(format!("https://www.discogs.com/release/{}", release_id))
+        } else {
+            None
+        };
+
+        let input = RecordInput {
+            title: title.to_string(),
+            artist: artist.to_string(),
+            release_date,
+            cover_url,
+            discogs_url,
+            spotify_url: None, // We don't have Spotify URL from Discogs CSV
+            owned: Some(true), // Records in the collection are owned
+            wanted: Some(false), // Not in wantlist since they're already owned
+            tags: Some(vec![label.to_string()]), // Use label as a tag
+        };
+
+        // Validate the record input
+        if let Err(e) = input.validate() {
+            // Extract validation error messages for this record
+            let validation_errors: Vec<String> = e.field_errors()
+                .iter()
+                .flat_map(|(field, errors)| {
+                    errors.iter().map(|error| {
+                        format!("Field '{}': {}", field, error.message.as_ref().unwrap_or(&"Invalid".into()))
+                    }).collect::<Vec<String>>()
+                })
+                .collect();
+                
+            let error_msg = format!("Row {}: Validation errors: {}", 
+                row_index, validation_errors.join(", "));
+            import_errors.push(error_msg);
+            continue;
+        }
+
+        record_inputs.push(input);
+    }
+    
+    // If we have any errors, return them all together
+    if !import_errors.is_empty() {
+        return Err(AppError::new(400, &format!("Import failed with {} errors:\n{}", 
+            import_errors.len(), 
+            import_errors.join("\n"))));
+    }
+    
+    // If no records were successfully parsed
+    if record_inputs.is_empty() {
+        return Err(AppError::new(400, "No valid records found in the CSV file"));
+    }
+
+    // Create the records in the database
+    let created_records = app
+        .use_cases
+        .record
+        .create_multiple(&app.repos, &mut db, user_id, record_inputs)
+        .await?;
 
     Ok(Json(created_records))
 }
@@ -144,7 +277,7 @@ async fn search(
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![index, add, get, random, search]
+    routes![index, add, get, random, search, import]
 }
 
 #[cfg(test)]

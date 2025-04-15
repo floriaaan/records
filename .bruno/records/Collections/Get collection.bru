@@ -1,0 +1,21 @@
+meta {
+  name: Get collection
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/records/collection/{{collection_token}}?format={{format}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  format: {{format}}
+}
+
+vars:pre-request {
+  collection_token: collection-token
+  format: html
+  ~format: json
+}

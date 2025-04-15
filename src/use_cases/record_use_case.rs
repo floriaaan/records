@@ -7,6 +7,7 @@ use crate::dto::spotify_dto::{SpotifyAccessTokenRoot, SpotifyRoot};
 use crate::error::app_error::AppError;
 use crate::models::record_model::Record;
 use crate::repositories::repositories::Repositories;
+use base64::Engine;
 use chrono::DateTime;
 use mockall::automock;
 use tracing::instrument;
@@ -148,32 +149,74 @@ impl RecordUseCase for RecordUseCaseImpl {
         let spotify_client_secret =
             env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set.");
         let spotify_refresh_token =
-            env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set.");
+            env::var("SPOTIFY_REFRESH_TOKEN").expect("SPOTIFY_REFRESH_TOKEN must be set.");
 
         // Authenticate with spotify
+        let auth_string = format!("{}:{}", spotify_client_id, spotify_client_secret);
+        let auth_encoded = base64::engine::general_purpose::STANDARD.encode(auth_string);
+        
+        tracing::info!("Authenticating with Spotify");
         let spotify_access_token: String = match reqwest::Client::new()
             .post("https://accounts.spotify.com/api/token")
             .header(
                 "Authorization",
-                format!("Basic {}:{}", spotify_client_id, spotify_client_secret),
+                format!("Basic {}", auth_encoded),
             )
             .header("Content-Type", "application/x-www-form-urlencoded")
-            .body(format!(
-                "grant_type=refresh_token&refresh_token={}",
-                spotify_refresh_token
-            ))
+            .form(&[
+                ("grant_type", "refresh_token"),
+                ("refresh_token", &spotify_refresh_token),
+            ])
             .send()
             .await
         {
-            Ok(result) => match result.json::<SpotifyAccessTokenRoot>().await {
-                Ok(json) => json.access_token,
-                Err(e) => {
-                    println!("[SpotifyAccessTokenRoot.json] Error: {}", e);
-                    return Err(AppError::new(500, &e.to_string()));
+            Ok(response) => {
+                // Get the status code for debugging
+                let status = response.status();
+                // Clone the response so we can look at the body and still use it later
+                let response_text = response.text().await;
+                
+                match response_text {
+                    Ok(body) => {
+                        // Log the raw response for debugging
+                        tracing::info!("Spotify API response status: {}, body: {}", status, body);
+                        
+                        // Try parsing again with the raw text
+                        match serde_json::from_str::<SpotifyAccessTokenRoot>(&body) {
+                            Ok(token_data) => token_data.access_token,
+                            Err(e) => {
+                                tracing::error!("[SpotifyAccessTokenRoot parse error] Error: {}", e);
+                                
+                                // Check if it's an error response from Spotify
+                                if body.contains("error") {
+                                    tracing::error!("Spotify API returned error: {}", body);
+                                }
+                                
+                                // Try to extract access token with a simple approach if possible
+                                if body.contains("access_token") {
+                                    let parts: Vec<&str> = body.split("\"access_token\":\"").collect();
+                                    if parts.len() > 1 {
+                                        let token_part = parts[1];
+                                        let end_idx = token_part.find('"').unwrap_or(token_part.len());
+                                        let token = &token_part[0..end_idx];
+                                        tracing::info!("Extracted access token: {}", token);
+                                        
+                                        token.to_string();
+                                    }
+                                }
+                                
+                                return Err(AppError::new(500, &format!("Failed to parse Spotify response: {}", e)));
+                            }
+                        }
+                    },
+                    Err(e) => {
+                        tracing::error!("[SpotifyAccessToken.text] Error: {}", e);
+                        return Err(AppError::new(500, &e.to_string()));
+                    }
                 }
             },
             Err(e) => {
-                println!("[SpotifyAccessTokenRoot.send] Error: {}", e);
+                tracing::error!("[SpotifyAccessToken.send] Error: {}", e);
                 return Err(AppError::new(500, &e.to_string()));
             }
         };
@@ -263,10 +306,24 @@ impl RecordUseCase for RecordUseCaseImpl {
                     .find(|item| item.name == record.title)
                     .unwrap_or(&spotify_json.albums.items[0]);
 
-                let release_date =
-                    DateTime::parse_from_rfc3339(spotify_record.release_date.as_str())
+                let release_date = match spotify_record.release_date_precision.as_str() {
+                    // For format like "2013-05-20" (day precision)
+                    "day" => DateTime::parse_from_rfc3339(&format!("{}T00:00:00Z", spotify_record.release_date))
                         .unwrap_or_default()
-                        .date_naive();
+                        .date_naive(),
+                    // For format like "2013-05" (month precision)
+                    "month" => DateTime::parse_from_rfc3339(&format!("{}-01T00:00:00Z", spotify_record.release_date))
+                        .unwrap_or_default()
+                        .date_naive(),
+                    // For format like "2013" (year precision)
+                    "year" => DateTime::parse_from_rfc3339(&format!("{}-01-01T00:00:00Z", spotify_record.release_date))
+                        .unwrap_or_default()
+                        .date_naive(),
+                    // Default case
+                    _ => DateTime::parse_from_rfc3339(&format!("{}-01-01T00:00:00Z", spotify_record.release_date))
+                        .unwrap_or_default()
+                        .date_naive(),
+                };
 
                 Record {
                     id: 0,

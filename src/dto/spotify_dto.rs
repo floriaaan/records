@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SpotifyAccessTokenRoot {
     pub access_token: String,
     pub token_type: String,
@@ -12,13 +11,11 @@ pub struct SpotifyAccessTokenRoot {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SpotifyRoot {
     pub albums: AlbumsResults,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct AlbumsResults {
     pub href: String,
     pub limit: i64,
@@ -30,7 +27,6 @@ pub struct AlbumsResults {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Item {
     #[serde(rename = "album_type")]
     pub album_type: String,
@@ -50,18 +46,16 @@ pub struct Item {
     pub type_field: String,
     pub uri: String,
     pub artists: Vec<Artist>,
-    #[serde(rename = "is_playable")]
+    #[serde(rename = "is_playable", default)]
     pub is_playable: bool,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ExternalUrls {
     pub spotify: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Image {
     pub url: String,
     pub height: i64,
@@ -69,7 +63,6 @@ pub struct Image {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Artist {
     #[serde(rename = "external_urls")]
     pub external_urls: ExternalUrls2,
@@ -82,7 +75,6 @@ pub struct Artist {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ExternalUrls2 {
     pub spotify: String,
 }

@@ -1,0 +1,14 @@
+meta {
+  name: Random record
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/records/random
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authentication_token}}
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Search records
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/records/search?query={{search_query}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authentication_token}}
+}
+
+var {
+  search_query: "daft punk random access memories"
+}

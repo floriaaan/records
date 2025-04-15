@@ -22,12 +22,18 @@
         "ordinal": 3,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "username",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": []
     },
     "nullable": [
+      false,
       false,
       false,
       false,

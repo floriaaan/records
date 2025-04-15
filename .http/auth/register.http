@@ -1,8 +1,14 @@
+###
+# @prompt username Your username
+# @prompt email Your email
+# @prompt password Your password
+
 POST http://localhost:8000/auth/register
 content-type: application/json
 
 {
-  "email": "user@mail.com",
-  "password": "This;Is,a@Str0ngPassword==",
-  "password_confirmation": "This;Is,a@Str0ngPassword=="
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "password_confirmation": "{{password}}"
 }

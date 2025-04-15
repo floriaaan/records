@@ -28,6 +28,7 @@ pub trait AuthUseCase: Send + Sync {
         repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<Jwt, AppError>;
 }
@@ -40,13 +41,22 @@ impl AuthUseCase for AuthUseCaseImpl {
         repos: &Repositories,
         db_con: &mut DbCon,
         email: &String,
+        username: &String,
         password: &String,
     ) -> Result<Jwt, AppError> {
         let hashed_password = hash(password, bcrypt::DEFAULT_COST).unwrap();
 
+        // Check if username already exists
+        if let Some(_) = repos.user.find_by_username(&mut *db_con, username).await? {
+            return Err(AppError::CustomError {
+                status_code: 400,
+                message: "Username already taken".to_string(),
+            });
+        }
+
         let user = repos
             .user
-            .create(&mut *db_con, email, &hashed_password)
+            .create(&mut *db_con, email, username, &hashed_password)
             .await?;
 
         let jwt_claim = generate_jwt(user.id).await;
@@ -109,10 +119,11 @@ mod tests {
         let use_case = AuthUseCaseImpl::new();
 
         let email = "email".to_string();
+        let username = "testuser".to_string();
         let password = "password".to_string();
 
         let jwt = use_case
-            .register(&repos, &mut db_con, &email, &password)
+            .register(&repos, &mut db_con, &email, &username, &password)
             .await
             .unwrap();
 

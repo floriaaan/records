@@ -6,6 +6,7 @@ pub mod config;
 pub mod db;
 pub mod utils;
 pub mod templating;
+pub mod openapi;
 
 mod error {
     pub mod app_error;
@@ -68,6 +69,7 @@ async fn rocket() -> _ {
         .mount("/records", record_controller::routes())
         .mount("/auth", auth_controller::routes())
         .mount("/records/collection", collection_controller::routes())
+        .mount("/docs", openapi::routes())
         .mount("/health-check", routes![health_check])
 }
 

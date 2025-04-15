@@ -27,6 +27,7 @@ pub async fn openapi_json() -> Json<Value> {
                     "properties": {
                         "id": { "type": "integer", "format": "int64" },
                         "email": { "type": "string", "format": "email" },
+                        "username": { "type": "string" },
                         "created_at": { "type": "string", "format": "date-time" },
                         "updated_at": { "type": "string", "format": "date-time" }
                     }
@@ -48,17 +49,20 @@ pub async fn openapi_json() -> Json<Value> {
                 },
                 "UserRegisterInput": {
                     "type": "object",
-                    "required": ["email", "password"],
+                    "required": ["email", "password", "username", "password_confirmation"],
                     "properties": {
                         "email": { "type": "string", "format": "email" },
-                        "password": { "type": "string" }
+                        "username": { "type": "string" },
+                        "password": { "type": "string" },
+                        "password_confirmation": { "type": "string" }
                     }
                 },
                 "UserUpdateInput": {
                     "type": "object",
-                    "required": ["email"],
+                    "required": ["email", "username"],
                     "properties": {
-                        "email": { "type": "string", "format": "email" }
+                        "email": { "type": "string", "format": "email" },
+                        "username": { "type": "string" }
                     }
                 },
                 "Record": {

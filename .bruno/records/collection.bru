@@ -1,0 +1,32 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{authentication_token}}
+}
+
+script:pre-request {
+  const axios = require("axios");
+  
+  await axios.post(
+    bru.getEnvVar("base_url")+"/auth/login",
+    {
+      email: bru.getEnvVar("email"),
+      password: bru.getEnvVar("password")
+    },
+    {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  )
+  .then(response => {
+    console.log(response.data.token)
+    bru.setVar("authentication_token", response.data.token);
+  })
+  .catch(error => {
+    console.error("Error during authentication:", error);
+  });
+  
+}
